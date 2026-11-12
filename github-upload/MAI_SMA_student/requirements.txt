@@ -1,0 +1,6 @@
+# -*- coding: utf-8 -*-
+# 필수: DuckDB(학생용 정비이력 DB 를 읽고 모델이 쓴 SQL 을 실행한다)
+# 판은 1.5 이상 2 미만. 2.x 는 relation 의 fetchone 이 없어지고, 1.4 이하는 임시 커서의 relation 이 먼저 닫혀 이 패키지가 멈춘다.
+duckdb>=1.5,<2
+# 선택(없어도 돈다): psutil = 설정 창의 메모리 표시 · openpyxl = 엑셀 기록양식 채우기·읽기(eval/)
+#   python -m pip install psutil openpyxl

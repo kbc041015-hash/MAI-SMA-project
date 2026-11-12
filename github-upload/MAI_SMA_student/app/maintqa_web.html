@@ -1,0 +1,2062 @@
+<!doctype html>
+<!-- 학생 이식판 — 원본: DemoTool/maintqa_web.html. 교수자용 빌드 스크립트(build_student_package.py — 학생 전달물에는 들어 있지 않다)가 고쳐 만들었다.
+     · 설정 창 모델·실행 환경 칸: GGUF 가 없으면 설정값(실행기 · 주소 · 요청 필드)과 시스템 메모리만 보인다
+     · 설정 창 Database · Records indexed: 학생용 DB 이름과 색인 구성(정비 문서 기록 + 참고 기록)
+     · 출처 표(provTable): 참고 기록(qa_proc_context)은 그 표의 열 이름으로 된 머리행 · 같은 본문 기록의 호기·날짜를 모두 · 문항ID 는 문항별로 묶어(P063 · records 1–4) 보이고, 바닥 설명도 기록 종류에 맞춘다. 정비 문서 기록은 원판 그대로이며 원문 머리와 바닥 설명에 합성 서술(synthetic narrative)임을 적는다
+     · 첫 화면 카드: 새 예시 질문 파일에 맞춰 고르는 낱말을 바꿨다 · 사이드바 아래 색인 수에 구성을 함께 적는다
+     · 안내 문구: START_DEMO → START.bat · STOP.bat, 원격 LLM 이면 바닥글 경고
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAI SMA · student</title>
+<!-- 탭 아이콘. 답변 옆의 별 표시와 같은 그림이다. 파일로 따로 두면
+     옮길 때 빠지기 쉬워 문서 안에 심는다. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234285f4'/%3E%3Cstop offset='.45' stop-color='%239b72cb'/%3E%3Cstop offset='1' stop-color='%23d96570'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M12 2.5 13.9 9l6.6 1.9-6.6 1.9L12 19.4 10.1 12.8 3.5 10.9 10.1 9z'/%3E%3Cpath fill='url(%23g)' opacity='.75' d='M18.8 2.6 19.6 5.3 22.3 6.1 19.6 6.9 18.8 9.6 18 6.9 15.3 6.1 18 5.3z'/%3E%3C/svg%3E">
+<script>
+// 판은 화면이 그려지기 전에 정해야 한다. 문서 끝에서 붙이면 그 사이에
+// CSS 기본값(밝은 판)이 한 번 그려져 흰 화면이 번쩍인다.
+(function(){
+  var d = true;                       // 기본은 어두운 판
+  try{ var v = localStorage.getItem('maintqa.theme'); if(v) d = (v === 'dark'); }catch(e){}
+  document.documentElement.dataset.theme = d ? 'dark' : 'light';
+})();
+</script>
+<style>
+:root{
+  /* 흰 판에서는 회색 글씨가 쉽게 묻힌다. 본문은 거의 검정으로,
+     보조 글씨도 한 단계씩 진하게 내린다. */
+  --bg:#fff; --side:#eef2f7; --side-hover:#dbe2ea; --ink:#101113; --ink2:#2b2f33;
+  --ink3:#474c52; --line:#a9aeb4; --line2:#d8dce1; --chip:#eef2f7; --user:#e7edf5;
+  --blue:#0b57d0; --blue-soft:#d3e3fd; --ok:#1e8e3e; --ok-bg:#e6f4ea;
+  /* 도는 원의 옅은 쪽. --blue-soft 는 밝은 판에서 거의 흰색이라
+     그대로 쓰면 고리의 절반이 사라진다. */
+  --ring:#6f9fe8;
+  --warn:#8a4b00; --warn-bg:#fdf3d8; --err:#a81714; --err-bg:#fbe3e1;
+  --shadow:0 1px 3px rgba(0,0,0,.10),0 4px 10px rgba(0,0,0,.06);
+  /* 바닥에서 올라오는 빛. 밝은 판에서는 흔적만 남긴다 */
+  --glow:radial-gradient(ellipse 130% 100% at 50% 132%,
+          rgba(11,87,208,.13) 0%, rgba(11,87,208,.05) 42%, transparent 72%);
+  --glow-h:46vh;
+}
+/* 어두운 판. 화면 위 토글이 <html data-theme="dark"> 를 붙이고 뗀다.
+   기본값은 <head> 의 짧은 스크립트가 첫 페인트 전에 붙인다. 문서 끝의
+   loadTheme() 에서만 붙이면 그 사이에 밝은 판이 한 번 그려진다. */
+:root[data-theme="dark"]{
+  /* 판을 거의 검정까지 낮춰야 아래쪽에서 올라오는 파랑이 산다 */
+  --bg:#0a0a0c; --side:#141518; --side-hover:#24262b; --ink:#e3e3e3;
+  --ink2:#c4c7c5; --ink3:#9aa0a6; --line:#3c3f45; --line2:#26282d;
+  --chip:#1a1c20; --user:#22252b;
+  --blue:#a8c7fa; --blue-soft:#0842a0; --ok:#6dd58c; --ok-bg:#0f3d20;
+  --ring:#3f6193;
+  --warn:#fdd663; --warn-bg:#3d2e00; --err:#f28b82; --err-bg:#3d1512;
+  --shadow:0 1px 3px rgba(0,0,0,.3);
+  --glow:radial-gradient(ellipse 130% 100% at 50% 130%,
+          rgba(36,86,196,.60) 0%, rgba(24,56,132,.28) 40%, transparent 72%);
+  --glow-h:54vh;
+}
+/* 본문 한 단의 폭. 화면이 넓어질수록 단계적으로 넓힌다.
+   글만 있으면 780px 이 편하지만 이 화면은 열 개짜리 출처 표를 함께 싣는다.
+   좁으면 표의 값이 세로로 접혀 오히려 읽기 어렵다. */
+/* 질문과 답은 같은 무게의 글이므로 같은 크기·줄간격으로 쓴다.
+   병기 줄은 한 단 아래. 인용구·출처·시간 같은 부가 설명은 따로 둔다. */
+:root{--qa:16px; --qa-lh:1.7; --qa2:14px; --qa2-lh:1.65}
+/* 입력 줄의 바깥 높이와, 그 아래 안내문이 차지하는 자리.
+   사이드바 안내문을 같은 값으로 맞춰야 두 상자가 한 바닥선에 놓인다.
+   58 = 보내기 단추 40 + 안쪽 여백 16 + 테두리 2
+   42 = 안내문 위 여백 9 + 한 줄 19 + 본문 아래 여백 14 */
+:root{--inrow:58px; --indisc:42px}
+:root{--colw:860px}
+@media(min-width:1280px){:root{--colw:1020px}}
+@media(min-width:1560px){:root{--colw:1200px}}
+@media(min-width:1860px){:root{--colw:1360px}}
+@media(min-width:2200px){:root{--colw:1520px}}
+*{box-sizing:border-box}
+/* 스크롤바와 기본 위젯 색까지 판을 따라가게 한다 */
+:root{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
+html,body{height:100%}
+/* 화면 아래쪽에 고정한 빛. 본문 뒤에 깔리고 클릭을 가로채지 않는다. */
+body::after{
+  content:'';position:fixed;left:0;right:0;bottom:0;height:var(--glow-h);
+  background:var(--glow);pointer-events:none;z-index:0;
+}
+#side,#main{position:relative;z-index:1}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI","Malgun Gothic",-apple-system,
+    Roboto,"Helvetica Neue",sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  display:flex; overflow:hidden;
+}
+
+/* ── 사이드바 ─────────────────────────────── */
+#side{
+  /* 폭은 --sidew 하나로 정한다. 끌어서 바꾸면 이 값만 바뀐다. */
+  width:var(--sidew,264px); flex:0 0 var(--sidew,264px);
+  background:var(--side); height:100vh; position:relative;
+  display:flex; flex-direction:column; padding:10px 8px;
+  transition:width .18s ease, flex-basis .18s ease;
+}
+/* 끄는 동안에는 손을 따라와야 하므로 애니메이션을 끈다 */
+body.sizing #side{transition:none}
+body.sizing{cursor:col-resize;user-select:none}
+/* 사이드바 오른쪽 모서리의 손잡이. 평소에는 보이지 않다가 닿으면 드러난다. */
+#sizer{
+  position:absolute;top:0;right:-3px;width:7px;height:100%;z-index:25;
+  cursor:col-resize;
+}
+#sizer::after{
+  content:'';position:absolute;top:0;left:2px;width:3px;height:100%;
+  background:var(--blue);opacity:0;transition:opacity .15s;
+}
+#sizer:hover::after,body.sizing #sizer::after{opacity:.55}
+body.collapsed #sizer{display:none}
+/* 넓은 화면에서는 사이드바도 넓혀 질문 제목이 덜 잘리게 한다.
+   접힌 상태는 아래 규칙이 더 구체적이라 그대로 68px 을 지킨다. */
+/* 넓은 화면의 기본 폭. 같은 변수를 쓰므로 끌어서 정한 값(인라인)이 이긴다. */
+@media(min-width:1560px){:root{--sidew:300px}}
+@media(min-width:1860px){:root{--sidew:330px}}
+body.collapsed #side{width:68px; flex-basis:68px}
+body.collapsed #side .lbl,body.collapsed #side .sect,body.collapsed #side .qitem{display:none}
+/* 접으면 목록을 통째로 숨긴다. 68px 안에서는 제목이 한두 글자로 잘려
+   무엇인지 알 수 없고, 그렇게 잘린 줄이 늘어서면 읽히지도 눌리지도 않는다.
+   접었을 때 남는 것은 여는 버튼과 새 대화 버튼 둘뿐이다. */
+body.collapsed #sidescroll{display:none}
+.iconbtn{
+  width:44px;height:44px;border:0;background:transparent;border-radius:50%;
+  cursor:pointer;color:var(--ink2);display:grid;place-items:center;flex:0 0 auto;
+}
+.iconbtn:hover{background:var(--side-hover)}
+.newchat{
+  display:flex;align-items:center;gap:12px;margin:14px 4px 18px;padding:10px 14px;
+  background:var(--side-hover);border:0;border-radius:24px;cursor:pointer;
+  color:var(--ink);font:inherit;font-size:14px;white-space:nowrap;
+}
+body.collapsed .newchat{padding:10px;justify-content:center}
+.newchat:hover{filter:brightness(.97)}
+/* 사이드바 상단 — 메뉴 버튼과 브랜드를 한 줄에 둔다 */
+#sidetop{display:flex;align-items:center;gap:2px;min-width:0}
+/* 사이드바 브랜드 — 무엇이 답하고 있는지를 가장 먼저 보이게 둔다 */
+/* 눌러서 새 대화를 여는 자리. 누를 수 있다는 것이 보여야 한다. */
+#sidebrand{display:flex;align-items:center;gap:9px;padding:2px 4px;min-width:0;
+  flex:1;cursor:pointer;border-radius:12px;transition:background .15s}
+#sidebrand:hover{background:var(--side-hover)}
+#sidebrand:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#sidebrand .bsp{
+  /* 옆 글자 블록은 .bnm 21*1.15=24.15 + 여백 1 + .bq 10*1.2=12 => 37.15px.
+     마크는 별 20 + 사이 1 + 라벨 두 줄 7.5*1.1*2=16.5 => 37.5px 로 맞춘다. */
+  flex:0 0 40px;display:flex;flex-direction:column;align-items:center;gap:1px;
+  line-height:0;
+}
+#sidebrand .bkm{
+  display:block;text-align:center;font-size:7.5px;font-weight:800;
+  letter-spacing:.4px;line-height:1.1;color:var(--ink2);
+}
+#sidebrand .bkm i{
+  display:block;font-style:normal;font-weight:700;letter-spacing:.4px;
+  color:var(--ink3);
+}
+#sidebrand .btx{min-width:0}
+#sidebrand .bnm{
+  font-size:21px;line-height:1.15;color:var(--ink2);letter-spacing:-.3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#sidebrand .bq{
+  /* 줄높이를 못 박는다. 적지 않으면 body 의 1.65 를 상속해 16.5px 이 되고
+     글자 블록이 41.65px 으로 커져 왼쪽 마크와 어긋난다. */
+  font-size:10px;line-height:1.2;color:var(--ink3);letter-spacing:.2px;
+  margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+body.collapsed #sidebrand{display:none}
+.sect{font-size:13px;color:var(--ink2);padding:8px 14px 6px;font-weight:500}
+/* 추천 질문과 지난 대화가 한 칸을 나눠 쓴다 */
+#sidescroll{flex:1;overflow-y:auto;padding-bottom:10px;min-height:0}
+#sidescroll::-webkit-scrollbar{width:8px}
+#sidescroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+#hlist{padding-bottom:6px}
+.hitem{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;
+  background:transparent;color:var(--ink2);font:inherit;font-size:13.5px;
+  padding:8px 14px;border-radius:0 20px 20px 0;cursor:pointer;
+}
+.hitem:hover{background:var(--side-hover);color:var(--ink)}
+.hitem.on{background:var(--side-hover);color:var(--ink);font-weight:600}
+.hitem .ht{
+  flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.hitem .hn{
+  flex:0 0 auto;font-size:10.5px;color:var(--ink3);
+  font-variant-numeric:tabular-nums;
+}
+/* 목록에서 바로 이름 고치기 */
+.hitem .hedit{
+  flex:1;min-width:0;background:var(--bg);color:var(--ink);font:inherit;
+  font-size:13px;border:1px solid var(--blue);border-radius:6px;padding:3px 7px;
+  outline:none;
+}
+/* 우클릭 메뉴 */
+.ctxmenu{
+  position:fixed;z-index:80;min-width:150px;padding:5px;
+  background:var(--side);border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 8px 28px rgba(0,0,0,.32);
+}
+.ctxmenu button{
+  display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:0;
+  background:transparent;color:var(--ink2);font:inherit;font-size:13px;
+  padding:8px 11px;border-radius:7px;cursor:pointer;
+}
+.ctxmenu button:hover{background:var(--side-hover);color:var(--ink)}
+.ctxmenu button[data-a="delete"]:hover{color:var(--err)}
+.ctxmenu svg{flex:0 0 15px;opacity:.85}
+/* 아직 답을 기다리는 대화 */
+.hitem .hw{
+  flex:0 0 9px;height:9px;border-radius:50%;border:2px solid var(--blue-soft);
+  border-top-color:var(--blue);animation:spin .8s linear infinite;
+}
+@media (prefers-reduced-motion:reduce){.hitem .hw{animation:none}}
+.qitem{
+  display:block;width:100%;text-align:left;border:0;background:transparent;
+  color:var(--ink2);font:inherit;font-size:13.5px;padding:8px 14px;border-radius:0 20px 20px 0;
+  cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.qitem:hover{background:var(--side-hover);color:var(--ink)}
+.sidefoot{
+  /* 오른쪽 입력 상자와 같은 높이, 같은 바닥선에 놓는다. 사이드바는 제
+     아래 여백이 10px 뿐이라 그대로 두면 입력 상자보다 그만큼 내려앉는다. */
+  font-size:11.5px;color:var(--ink3);
+  padding:6px 8px 6px 14px;
+  min-height:var(--inrow);
+  border-top:1px solid var(--line2);display:flex;align-items:center;gap:8px;
+}
+/* 성격이 다른 두 가지 사실이라 한 줄씩 둔다. <br> 로 못 박지 않고
+   각각을 블록으로 두어, 사이드바를 좁히면 제 줄 안에서 접히게 한다. */
+.sidefoot .sft{flex:1;min-width:0;line-height:1.5}
+.sidefoot .sft > span{display:block}
+/* 저작 표시. 오른쪽 아래 안내 문구와 같은 줄에 놓는다. 글줄 상자의 바닥과
+   글자 크기·줄높이를 같은 값으로 두어야 밑선이 맞는다.
+     오른쪽  본문 아래 여백 14px 위에 19px 짜리 글줄
+     왼쪽    사이드바 아래 여백 10px + 여기 4px 위에 같은 글줄
+   위 여백 9px 은 안내문 칸의 바닥을 원래 자리에 그대로 두기 위한 것이다. */
+.sidecpr{
+  flex:0 0 auto;padding:9px 8px 4px 14px;
+  font-size:11.5px;line-height:19px;color:var(--ink3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+body.collapsed .sidecpr{display:none}
+/* 톱니바퀴. 펼쳤을 때는 안내문 오른쪽, 접었을 때는 새 대화 버튼 아래. */
+.gear{
+  flex:0 0 auto;width:32px;height:32px;border:0;border-radius:50%;
+  background:transparent;color:var(--ink3);cursor:pointer;
+  display:grid;place-items:center;transition:background .15s,color .15s;
+}
+.gear:hover{background:var(--side-hover);color:var(--ink)}
+.gear:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#gear2{display:none;margin:0 auto 6px}
+body.collapsed #gear2{display:grid}
+body.collapsed .sidefoot{display:none}
+
+/* 설정 창 */
+#sheetbg{
+  position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.45);
+  display:none;align-items:center;justify-content:center;padding:24px;
+}
+#sheetbg.on{display:flex}
+#sheet{
+  width:min(760px,100%);max-height:86vh;overflow-y:auto;
+  background:var(--bg);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 18px 60px rgba(0,0,0,.4);
+}
+#sheet .sh{
+  position:sticky;top:0;background:var(--bg);display:flex;align-items:center;
+  gap:10px;padding:16px 20px 12px;border-bottom:1px solid var(--line2);
+}
+#sheet .sh h2{margin:0;font-size:17px;font-weight:600;color:var(--ink);flex:1}
+#sheet .sb{padding:6px 20px 20px}
+.sgrp{margin-top:16px}
+.sgrp > h3{
+  margin:0 0 8px;font-size:10.5px;font-weight:700;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--ink3);
+}
+.stab{width:100%;border-collapse:collapse;font-size:12.5px}
+.stab td{padding:6px 8px;border-bottom:1px solid var(--line2);color:var(--ink2);
+  vertical-align:top}
+.stab td:first-child{width:38%;color:var(--ink3);white-space:nowrap}
+.stab tr:last-child td{border-bottom:0}
+.stab b{color:var(--ink);font-weight:600}
+.smeter{height:8px;border-radius:5px;background:var(--line2);overflow:hidden;margin:7px 0 5px}
+.smeter i{display:block;height:100%;background:var(--blue);border-radius:5px}
+.smeter i.hot{background:var(--warn)}
+.snote{font-size:11px;color:var(--ink3);line-height:1.6;margin-top:7px;max-width:70ch}
+/* 설정 창 안의 사전 찾아보기 */
+.sbtn{
+  margin-top:10px;border:1px solid var(--line);background:var(--chip);
+  color:var(--ink2);font:inherit;font-size:12.5px;padding:7px 14px;
+  border-radius:999px;cursor:pointer;transition:background .15s,color .15s;
+}
+.sbtn:hover{background:var(--side-hover);color:var(--ink)}
+.sbtn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#sheet .sh .back{
+  flex:0 0 auto;width:30px;height:30px;border:0;border-radius:50%;
+  background:transparent;color:var(--ink2);cursor:pointer;display:none;
+  place-items:center;
+}
+#sheet.dict .sh .back{display:grid}
+#sheet .sh .back:hover{background:var(--chip);color:var(--ink)}
+.dsearch{
+  position:sticky;top:0;z-index:2;background:var(--bg);padding:10px 0 8px;
+  display:flex;align-items:center;gap:10px;
+}
+.dsearch input{
+  flex:1;min-width:0;border:1px solid var(--line);background:var(--chip);
+  color:var(--ink);font:inherit;font-size:13px;padding:8px 13px;
+  border-radius:999px;outline:none;
+}
+.dsearch input:focus{border-color:var(--blue)}
+.dsearch .dcnt{flex:0 0 auto;font-size:11px;color:var(--ink3);white-space:nowrap}
+.dtab{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.dtab th{
+  text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--ink3);padding:6px 8px;
+  border-bottom:1px solid var(--line);position:sticky;top:46px;background:var(--bg);
+}
+.dtab td{padding:7px 8px;border-bottom:1px solid var(--line2);color:var(--ink2);
+  vertical-align:top;word-break:break-word;overflow-wrap:break-word}
+.dtab td.mono{font-family:Consolas,"Cascadia Mono",monospace;color:var(--ink)}
+.dtab td.syn{color:var(--ink3);font-size:11.5px}
+.dtab tr:last-child td{border-bottom:0}
+.dtab .tg{
+  display:inline-block;font-size:10px;letter-spacing:.3px;color:var(--ink3);
+  background:var(--chip);border-radius:5px;padding:1px 6px;
+}
+.dempty{font-size:12px;color:var(--ink3);padding:18px 8px}
+
+/* ── 본문 ─────────────────────────────────── */
+#main{flex:1;display:flex;flex-direction:column;height:100vh;min-width:0;
+  background:transparent}
+#top{
+  display:flex;align-items:center;gap:10px;padding:14px 20px 10px;flex:0 0 auto;
+}
+/* 제품 이름. 약칭을 크게, 풀어 쓴 이름을 작게 — 사이드바의 모델 이름
+   블록과 같은 21px / 10px 두 단이라 두 머리글이 나란히 읽힌다. */
+#brand{display:flex;flex-direction:column;min-width:0}
+#brand .bmk{
+  font-size:21px;line-height:1.15;color:var(--ink2);
+  font-weight:600;letter-spacing:.6px;      /* 대문자 약칭은 조금 벌려야 읽힌다 */
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#brand .bsub{
+  /* 줄높이를 못 박는다. 적지 않으면 body 의 1.65 를 상속해 16.5px 이 되고
+     이름 블록만 혼자 커진다. */
+  font-size:10px;line-height:1.2;color:var(--ink3);letter-spacing:.2px;
+  margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* 한국어 병기 토글 */
+#bisw{
+  position:relative;margin-left:auto;display:inline-flex;align-items:center;
+  gap:9px;cursor:pointer;user-select:none;padding:5px 11px;border-radius:999px;
+  border:1px solid var(--line2);flex:0 0 auto;
+}
+#bisw:hover{background:var(--chip)}
+#bisw input{position:absolute;opacity:0;width:0;height:0}
+#bisw .bibox{
+  width:32px;height:18px;border-radius:999px;background:var(--line);
+  position:relative;transition:background .15s;flex:0 0 auto;
+}
+#bisw .biknob{
+  position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:var(--bg);transition:transform .15s;
+}
+#bisw input:checked + .bibox{background:var(--blue)}
+#bisw input:checked + .bibox .biknob{transform:translateX(14px)}
+#bisw .bilbl{font-size:12.5px;color:var(--ink3);white-space:nowrap}
+#bisw input:checked ~ .bilbl{color:var(--ink2)}
+#bisw input:focus-visible + .bibox{outline:2px solid var(--blue);outline-offset:2px}
+/* 켜면 느려진다는 것을 미리 알린다 */
+#bisw .bitip{
+  position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:290px;
+  background:var(--ink);color:var(--bg);font-size:11.5px;line-height:1.6;
+  padding:10px 13px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.28);
+  opacity:0;pointer-events:none;transform:translateY(-4px);
+  transition:opacity .15s,transform .15s;
+}
+#bisw .bitip b{font-weight:700}
+#bisw:hover .bitip,#bisw input:focus-visible ~ .bitip{
+  opacity:1;transform:translateY(0);
+}
+@media(max-width:700px){#bisw .bilbl{display:none}}
+/* Dark / Light 전환. 양쪽 글자를 모두 두고, 손잡이가 간 쪽이 켜진 판이다. */
+#thsw{
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;
+  padding:5px 11px;border-radius:999px;border:1px solid var(--line2);
+  flex:0 0 auto;margin-left:10px;
+}
+#thsw:hover{background:var(--chip)}
+#thsw input{position:absolute;opacity:0;width:0;height:0}
+#thsw .thl{
+  font-size:12px;color:var(--ink3);white-space:nowrap;transition:color .15s;
+}
+#thsw .thl.on{color:var(--ink);font-weight:600}
+#thsw .thbox{
+  width:32px;height:18px;border-radius:999px;background:var(--line);
+  position:relative;transition:background .15s;flex:0 0 auto;
+}
+#thsw .thknob{
+  position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:var(--bg);transition:transform .15s;
+}
+#thsw input:checked + .thbox{background:var(--blue)}   /* 병기 토글과 같은 색 */
+#thsw input:checked + .thbox .thknob{transform:translateX(14px)}
+#thsw input:focus-visible + .thbox{outline:2px solid var(--blue);outline-offset:2px}
+@media(max-width:820px){#thsw .thl{display:none}}
+.badge{
+  font-size:12px;padding:5px 11px;border-radius:14px;background:var(--chip);
+  color:var(--ink2);border:1px solid var(--line2);white-space:nowrap;
+}
+.badge.demo{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+#scroll{flex:1;overflow-y:auto;padding:0 20px}
+@media(max-width:700px){#scroll{padding:0 12px}}
+#scroll::-webkit-scrollbar{width:10px}
+#scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px}
+.wrap{max-width:var(--colw);margin:0 auto;padding-bottom:20px}
+
+/* 빈 화면 */
+#hello{padding:72px 4px 26px}
+#hello h1{
+  font-size:46px;line-height:1.18;margin:0;font-weight:500;letter-spacing:-1px;
+  background:linear-gradient(74deg,#4285f4 0%,#9b72cb 34%,#d96570 68%,#d96570 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+#hello p{font-size:17px;color:var(--ink3);margin:10px 0 0;font-weight:400}
+#cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:34px}
+.card{
+  position:relative;background:var(--chip);border:0;border-radius:14px;padding:16px 16px 44px;
+  text-align:left;cursor:pointer;color:var(--ink);font:inherit;font-size:14px;line-height:1.5;
+  min-height:150px;transition:background .15s;
+}
+.card:hover{background:var(--side-hover)}
+.card .ci{
+  position:absolute;right:12px;bottom:12px;width:32px;height:32px;border-radius:50%;
+  background:var(--bg);display:grid;place-items:center;color:var(--ink2);
+}
+.card .tag{display:block;font-size:11.5px;color:var(--ink3);margin-bottom:6px;letter-spacing:.2px}
+
+/* 대화 */
+.turn{padding:14px 0}
+.q{display:flex;justify-content:flex-end;margin-bottom:22px}
+.q > span{
+  /* inline 인 채로 안에 블록(한국어 줄)을 넣으면 브라우저가 인라인 상자를
+     쪼개고 그 자리에 패딩을 다시 넣어 첫 줄만 밀린다. inline-block 으로
+     두어야 두 언어가 같은 왼쪽 선에서 시작한다. */
+  display:inline-block;
+  /* 두 줄 중 넓은 쪽에 상자를 맞춘다. 넘칠 때만 86% 에서 접힌다. */
+  width:max-content;
+  background:var(--user);padding:12px 18px;border-radius:20px;max-width:86%;
+  white-space:pre-wrap;text-align:left;
+  /* 한국어는 어절 사이에서만 끊는다. 끊을 데가 없는 긴 낱말만 강제로 자른다. */
+  word-break:keep-all;overflow-wrap:break-word;
+  font-size:var(--qa);line-height:var(--qa-lh);
+}
+/* 병기 모드에서 질문의 반대쪽 언어 */
+.q > span > .qko{
+  /* 위 규칙이 '.q span' 이던 시절 이 상자까지 함께 잡혀 max-width:86% 를
+     물려받았다. 풍선 안쪽 폭의 86% 에서 접히니 한국어 줄만 늘 한 줄이
+     모자랐다. 선택자는 갈랐지만, 같은 일이 다시 나지 않게 못 박아 둔다. */
+  max-width:none;background:none;border-radius:0;
+  display:block;margin:7px 0 0;padding:7px 0 0;
+  border-top:1px solid var(--line2);
+  font-size:var(--qa2);line-height:var(--qa2-lh);color:var(--ink3);
+  text-indent:0;                       /* 첫 줄이 밀리지 않게 못 박는다 */
+}
+.a{display:flex;gap:16px;align-items:flex-start}
+.spark{flex:0 0 26px;margin-top:2px}
+.spark svg{display:block}
+.abody{flex:1;min-width:0}
+.meta{font-size:12px;color:var(--ink3);margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+/* 답 아래에 오는 근거 구역. 답과 눈으로 갈라 놓는다. */
+.evid{margin-top:18px;padding-top:14px;border-top:1px solid var(--line2)}
+.evid .meta{margin-bottom:9px}
+.evid-h{
+  font-size:10.5px;font-weight:700;letter-spacing:.6px;color:var(--ink3);
+  text-transform:uppercase;margin-bottom:8px;opacity:.9;
+}
+.meta .r{padding:2px 9px;border-radius:10px;background:var(--chip);border:1px solid var(--line2)}
+.think{display:flex;align-items:center;gap:10px;color:var(--ink3);font-size:14px}
+/* 진행 단계 — 기다리는 동안 어디까지 왔는지 보인다 */
+.stages{margin:12px 0 2px;font-size:13px;line-height:1.5}
+.stages .st{display:flex;align-items:center;gap:9px;padding:3px 0;color:var(--ink3)}
+.stages .st.on{color:var(--ink2)}
+.stages .ic{
+  flex:0 0 16px;height:16px;display:grid;place-items:center;
+  font-size:11px;font-weight:700;
+}
+.stages .st.ok .ic{color:var(--ok)}
+.stages .st.on .ic{color:var(--blue)}
+/* 단계 이름 바로 뒤에 시간을 붙인다. flex:1 을 주면 넓은 화면에서 시간이
+   오른쪽 끝까지 밀려나 이름과 짝이 안 보인다. */
+.stages .sl{min-width:0}
+.stages .sv{
+  color:var(--ink3);font-variant-numeric:tabular-nums;font-size:12px;
+  white-space:nowrap;opacity:.8;
+}
+.stages .st.on .sv{opacity:1;color:var(--blue)}
+.stages .st.on .sl{font-weight:600}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stages .st.on .ic i{
+  display:block;width:11px;height:11px;border-radius:50%;
+  border:2px solid var(--blue-soft);border-top-color:var(--blue);
+  animation:spin .8s linear infinite;
+}
+@media (prefers-reduced-motion:reduce){.stages .st.on .ic i{animation:none}}
+/* 한 토막만 진하게 칠하면 그 덩어리가 돌 때마다 깜빡이는 것으로 읽힌다.
+   원둘레를 따라 진하기가 이어지게 두면 고리가 늘 온전히 보이고, 진한 쪽이
+   머리가 되어 도는 방향도 읽힌다. 테두리로는 이렇게 칠할 수 없어 원판을
+   칠한 뒤 가운데를 도려낸다. 도려낼 수 없는 판에서는 위의 토막 고리가
+   그대로 남는다. */
+@supports (mask: radial-gradient(#000,#000)) or (-webkit-mask: radial-gradient(#000,#000)){
+  .stages .st.on .ic i, .hitem .hw{
+    border:0;background:conic-gradient(from 0deg, var(--ring), var(--blue));
+    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+            mask:radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+    animation-duration:1.3s;    /* 기다리는 화면에서 빠른 회전은 조급해 보인다 */
+  }
+  .stages .st.on .ic i{width:13px;height:13px}
+  .hitem .hw{flex:0 0 11px;height:11px}
+}
+/* 줄 서 있는 턴. 도는 원이 아니라 멈춘 원으로 두어 '아직 시작 전' 임을
+   진행 중인 턴과 구분한다. */
+.qwait{
+  display:inline-block;width:11px;height:11px;border-radius:50%;
+  border:2px solid var(--line);border-top-color:var(--ink3);
+}
+.dots{display:inline-flex;gap:4px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--ink3);animation:bl 1.3s infinite}
+.dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+@keyframes bl{0%,60%,100%{opacity:.25}30%{opacity:1}}
+
+/* 결과 */
+.big{font-size:30px;font-weight:500;letter-spacing:-.5px;margin:2px 0 6px}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:6px 0 4px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line2);text-align:left}
+th{color:var(--ink3);font-weight:500;font-size:12.5px;border-bottom:1px solid var(--line)}
+td{font-variant-numeric:tabular-nums}
+.tscroll{overflow-x:auto;max-height:430px;overflow-y:auto;border-radius:10px;border:1px solid var(--line2)}
+.note{
+  border-radius:12px;padding:14px 16px;margin:4px 0;font-size:14.5px;
+}
+.note.warn{background:var(--warn-bg);color:var(--warn)}
+.note.err{background:var(--err-bg);color:var(--err)}
+.note b{display:block;margin-bottom:5px;font-weight:600}
+.note .why{color:inherit;opacity:.88;font-size:13.5px;line-height:1.6;
+  max-width:92ch}
+/* 순수한 글줄은 지나치게 길어지면 눈이 줄을 놓친다. 표와 코드는 제한하지
+   않는다 — 그쪽은 넓을수록 읽기 쉽다. */
+ol.steps li{max-width:108ch}
+ol.steps{margin:2px 0;padding-left:0;list-style:none;counter-reset:s}
+ol.steps li{
+  counter-increment:s;padding:11px 0 11px 34px;position:relative;
+  border-bottom:1px solid var(--line2);
+  font-size:var(--qa);line-height:var(--qa-lh);
+}
+ol.steps li:last-child{border-bottom:0}
+ol.steps li::before{
+  content:counter(s);position:absolute;left:0;top:13px;width:23px;height:23px;border-radius:50%;
+  background:var(--chip);color:var(--ink2);font-size:12px;display:grid;place-items:center;
+}
+.cite{font-size:12.5px;margin-top:7px;color:var(--ink3);line-height:1.6}
+.cite .org{color:var(--ink3)}
+.cite .qt{margin-top:3px;padding-left:10px;border-left:2px solid var(--line2);
+          color:var(--ink3);font-style:normal}
+.vchip{
+  display:inline-block;font-size:11px;padding:1px 8px;border-radius:9px;margin-right:6px;
+  vertical-align:1px;font-weight:600;letter-spacing:.2px;
+}
+.vok{background:var(--ok-bg);color:var(--ok)}
+.vno{background:var(--err-bg);color:var(--err)}
+.summary{
+  margin-top:14px;padding:11px 14px;border-radius:11px;background:var(--chip);
+  font-size:13.5px;color:var(--ink2);
+}
+.summary .bar{height:5px;border-radius:3px;background:var(--line2);margin:8px 0 7px;overflow:hidden}
+.summary .bar i{display:block;height:100%;background:var(--ok);border-radius:3px}
+details{margin-top:12px}
+summary{cursor:pointer;font-size:13px;color:var(--ink3);padding:5px 0;user-select:none}
+summary:hover{color:var(--ink2)}
+.qbox{margin:10px 0 4px;border:1px solid var(--line2);border-radius:11px;overflow:hidden}
+.qhead{display:flex;align-items:center;gap:8px;padding:7px 13px;background:var(--chip);
+  font-size:11.5px;color:var(--ink3);border-bottom:1px solid var(--line2)}
+.qhead b{color:var(--ink2);font-weight:600}
+.qbody{padding:11px 13px;font-family:Consolas,"Cascadia Mono",monospace;font-size:12.5px;
+  line-height:1.6;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.qbody .kw{color:var(--blue);font-weight:600}
+.qbody .st{color:var(--ok)}
+pre{
+  background:var(--chip);padding:12px 14px;border-radius:10px;overflow-x:auto;
+  font-family:Consolas,"Cascadia Mono",monospace;font-size:12.5px;line-height:1.55;
+  margin:8px 0 0;white-space:pre-wrap;word-break:break-all;
+}
+/* 출처 계층 표 */
+.ptab{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+/* 머리행에 마우스를 올리면 원본 컬럼명이 뜬다. 늘 보이면 값이 가린다. */
+.ptab th[title]{cursor:help;text-decoration:underline dotted var(--line);
+  text-underline-offset:3px}
+.ptab tfoot td{
+  background:var(--chip);color:var(--ink3);font-size:10.5px;padding:7px 8px;
+  border-bottom:0;line-height:1.6;
+}
+/* 기록마다 되풀이되는 머리행. 첫 묶음 외에는 위에 선을 하나 둬서
+   앞 기록과 구분되게 한다. */
+.ptab tr.hdr + tr td{border-top:0}
+.ptab tr.hdr th{border-top:2px solid var(--line)}
+.ptab tr.hdr:first-child th{border-top:0}
+.ptab th{
+  background:var(--chip);color:var(--ink3);font-weight:600;font-size:11px;
+  padding:7px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line);
+  letter-spacing:.2px;
+}
+.ptab td{padding:8px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--ink)}
+.ptab tr:last-child td{border-bottom:0}
+.ptab tr.on td{background:color-mix(in srgb,var(--ok) 7%,transparent)}
+.ptab .num{text-align:center;font-weight:600;white-space:nowrap}
+.ptab .no{color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ptab .sub{display:block;color:var(--ink3);font-size:11px;margin-top:2px}
+.ptab .cd{color:var(--ink3);font-size:10.5px}
+.pwrap{overflow-x:auto;border:1px solid var(--line2);border-radius:11px;margin-top:8px}
+.pitems{font-size:11px;color:var(--ink3);line-height:1.55}
+.pitems b{font-weight:600;color:var(--ink2)}
+/* 기록 원문 — 바로 위 행의 근거가 된 문장 그대로 */
+.ptab tr.raw td{
+  background:var(--chip);padding:9px 10px 12px;
+  border-bottom:2px solid var(--line);
+}
+.ptab tr.raw .rawhead{
+  font-size:10.5px;font-weight:600;color:var(--ink3);
+  letter-spacing:.3px;margin-bottom:5px;text-transform:uppercase;
+}
+.ptab tr.raw .rawbody{
+  font-size:11.5px;line-height:1.72;color:var(--ink2);white-space:pre-wrap;
+  word-break:break-word;max-height:190px;overflow-y:auto;
+}
+.ptab tr.raw mark{
+  background:color-mix(in srgb,var(--ok) 26%,transparent);
+  color:inherit;border-radius:3px;padding:0 1px;
+}
+/* 집계 답변 문장 */
+.ansline{
+  font-size:var(--qa);line-height:var(--qa-lh);color:var(--ink);font-weight:500;
+  margin:2px 0 12px;letter-spacing:-.1px;
+}
+.ansline b{font-weight:700;font-variant-numeric:tabular-nums}
+/* 영문 병기 — 같은 내용을 한 단 아래에 둔다 */
+.ansen{
+  font-size:var(--qa2);line-height:var(--qa2-lh);color:var(--ink3);
+  margin:-6px 0 14px;padding-left:11px;border-left:2px solid var(--line);
+  word-break:keep-all;overflow-wrap:break-word;
+}
+.steps .en{
+  display:block;font-size:var(--qa2);line-height:var(--qa2-lh);color:var(--ink3);
+  margin-top:5px;padding-left:10px;border-left:2px solid var(--line2);
+  word-break:keep-all;overflow-wrap:break-word;
+}
+/* 번역에 쓴 용어 대응 */
+/* 검색 상자의 아래 구획. .qbody 와 같은 여백을 주어 한 상자로 읽히게 한다 */
+.tmap{
+  padding:10px 13px 12px;border-top:1px solid var(--line2);
+  background:var(--chip);font-size:11px;color:var(--ink3);line-height:1.6;
+}
+.tmap .th{
+  display:block;font-weight:600;color:var(--ink2);letter-spacing:.2px;
+  margin-bottom:7px;
+}
+.tmap .tr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0}
+.tmap .tk{color:var(--ink2)}
+.tmap .ar{color:var(--ink3);opacity:.6}
+.tmap code{
+  background:var(--bg);border:1px solid var(--line2);border-radius:5px;
+  padding:2px 7px;font-size:10.5px;color:var(--ink2);
+  font-family:Consolas,"Cascadia Mono",monospace;
+}
+.tmap .tn{
+  display:block;margin-top:9px;max-width:66ch;opacity:.85;line-height:1.6;
+}
+/* 표 머리행 */
+.tscroll table thead th{
+  background:var(--chip);color:var(--ink3);font-size:11px;font-weight:600;
+  text-align:left;padding:7px 10px;white-space:nowrap;
+  border-bottom:1px solid var(--line);letter-spacing:.2px;
+}
+/* 앞선 질문을 이어받았을 때의 안내 */
+.ctxline{
+  font-size:12px;color:var(--ink3);margin:0 0 10px;padding:7px 10px;
+  background:var(--chip);border-radius:9px;line-height:1.55;
+}
+.ctxline b{color:var(--ink2);font-weight:600}
+/* 응답 중 안내 토스트 */
+#toast{
+  position:fixed;left:50%;bottom:118px;transform:translateX(-50%) translateY(8px);
+  background:var(--ink);color:var(--bg);font-size:13px;line-height:1.5;
+  padding:11px 16px;border-radius:11px;box-shadow:0 6px 24px rgba(0,0,0,.22);
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:60;
+  max-width:min(440px,90vw);text-align:center;
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* 첫 화면 문구의 영문 병기 */
+#hello .en{
+  display:block;font-size:15px;color:var(--ink3);margin-top:4px;font-weight:400;
+}
+#hello h1 .en{font-size:20px;letter-spacing:-.3px;margin-top:6px}
+.srcs{font-size:13px;color:var(--ink2);margin-top:8px}
+.srcs div{padding:6px 0;border-bottom:1px solid var(--line2)}
+.srcs div:last-child{border:0}
+.srcs b{font-weight:500;color:var(--ink)}
+
+/* 입력 */
+#bottom{flex:0 0 auto;padding:6px 20px 14px}
+#inwrap{
+  /* 버튼은 40px(반경 20), 상자 모서리는 반경 28. 둘이 같은 중심을 가지려면
+     오른쪽과 아래 여백이 28-20=8px 로 같아야 한다. 아래가 6px 이라 버튼이
+     모서리에서 2px 밀려 있었다. */
+  max-width:var(--colw);margin:0 auto;display:flex;align-items:flex-end;gap:8px;
+  background:var(--chip);border-radius:28px;padding:8px 8px 8px 20px;
+  border:1px solid transparent;transition:border-color .15s;
+}
+#inwrap:focus-within{border-color:var(--line)}
+#q{
+  /* 한 줄일 때 글상자 높이를 버튼과 같은 40px 로 맞춘다.
+     글줄 15.5*1.5=23.25px + 위아래 8px = 39.25px. */
+  flex:1;border:0;background:transparent;color:var(--ink);font:inherit;font-size:15.5px;
+  resize:none;outline:none;padding:8px 0;max-height:180px;line-height:1.5;
+}
+#q::placeholder{color:var(--ink3)}
+#send{
+  /* 입력이 비어도 자리를 지킨다. 버튼이 사라지면 어디를 눌러 보내는지
+     알 수 없다. 보낼 것이 있을 때만 또렷해지게 해 상태를 구분한다. */
+  width:40px;height:40px;border:0;border-radius:50%;background:var(--chip);
+  color:var(--ink3);cursor:pointer;display:grid;place-items:center;flex:0 0 auto;
+  opacity:.75;transition:opacity .15s,background .15s,color .15s;
+}
+#send:hover{opacity:1;background:var(--side-hover)}
+#send.on{
+  opacity:1;background:var(--blue-soft);color:var(--blue);
+}
+#send.on:hover{filter:brightness(1.06)}
+#send:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#send:disabled{opacity:.45;pointer-events:none}
+/* 답변 중에는 같은 자리가 정지 버튼이 된다 */
+#send.stop{
+  opacity:1;transform:scale(1);pointer-events:auto;
+  background:var(--chip);color:var(--ink2);border:1px solid var(--line);
+}
+#send.stop:hover{background:var(--side-hover);color:var(--ink)}
+.note.stop{background:var(--chip);color:var(--ink2)}
+#disc{max-width:var(--colw);margin:9px auto 0;font-size:11.5px;color:var(--ink3);text-align:center}
+/* 문항을 채우는 동안 띄우는 띠. 알림 문구는 곧 사라져 정말 돌고 있는지
+   알 수 없었다. 끝날 때까지 남아 있어야 한다. */
+#seedbar{
+  flex:0 0 auto;margin:0 20px 6px;padding:9px 16px;border-radius:12px;
+  background:var(--blue-soft);color:var(--blue);
+  font-size:12.5px;display:flex;align-items:center;gap:10px;
+}
+#seedbar .sbw{
+  flex:0 0 13px;height:13px;border-radius:50%;
+  background:conic-gradient(from 0deg, var(--ring), var(--blue));
+  -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+          mask:radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation:spin 1.3s linear infinite;
+}
+#seedbar .sbn{margin-left:auto;opacity:.8;font-variant-numeric:tabular-nums}
+@media(max-width:860px){
+  #side{position:fixed;z-index:20;box-shadow:var(--shadow)}
+  body.collapsed #side{width:0;flex-basis:0;padding:0;overflow:hidden}
+  #hello h1{font-size:34px}
+}
+</style>
+</head>
+<body class="collapsed">
+
+<nav id="side">
+  <div id="sizer" title="Drag to resize"></div>
+  <div id="sidetop">
+  <button class="iconbtn" id="burger" title="Menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+  </button>
+  <div id="sidebrand" role="button" tabindex="0" title="New chat">
+    <span class="bsp" id="bspark"></span>
+    <span class="btx">
+      <div class="bnm" id="sbmodel">—</div>
+      <div class="bq" id="sbquant"></div>
+    </span>
+  </div>
+  </div>
+  <button class="newchat" id="newchat">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"/></svg>
+    <span class="lbl">New chat</span>
+  </button>
+  <div id="sidescroll">
+    <div class="sect">Suggested questions</div>
+    <div id="qlist"></div>
+    <div class="sect" id="hsect" hidden>Recent chats</div>
+    <div id="hlist"></div>
+  </div>
+  <button class="gear" id="gear2" title="Settings"></button>
+  <div class="sidefoot lbl">
+    <span class="sft"><span>Runs offline · No external communication</span><span
+      id="sidemeta"></span></span>
+    <button class="gear" id="gear1" title="Settings"></button>
+  </div>
+  <div class="sidecpr lbl">© 2026 KMOU MMLAB</div>
+</nav>
+
+<div id="main">
+  <div id="top">
+    <div id="brand">
+      <span class="bmk">MAI SMA</span>
+      <span class="bsub">Smart Maintenance Advisor</span>
+    </div>
+    <label id="bisw" title="">
+      <input type="checkbox" id="bichk">
+      <span class="bibox"><span class="biknob"></span></span>
+      <span class="bilbl">Korean alongside</span>
+      <span class="bitip"><b>Adds a Korean line to every answer.</b><br>
+        The model then has to write each step twice, so it generates about twice
+        as many tokens. On this machine that is roughly <b>2x the waiting time</b>
+        — a 90-second answer becomes about three minutes. English only is the default.</span>
+    </label>
+    <label id="thsw" title="Switch between the light and dark skin">
+      <span class="thl" id="thlight">Light</span>
+      <input type="checkbox" id="thchk">
+      <span class="thbox"><span class="thknob"></span></span>
+      <span class="thl" id="thdark">Dark</span>
+    </label>
+  </div>
+
+  <div id="toast"></div>
+  <div id="seedbar" hidden></div>
+
+  <div id="sheetbg">
+    <div id="sheet" role="dialog" aria-modal="true" aria-label="Settings">
+      <div class="sh"><button class="back" id="sheetback" title="Back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4-4.6-4.6z"/></svg>
+        </button><h2 id="sheeth">Settings</h2>
+        <button class="iconbtn" id="sheetx" title="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <div class="sb" id="sheetbody"></div>
+    </div>
+  </div>
+
+  <div id="scroll"><div class="wrap">
+    <div id="hello">
+      <h1>Hello</h1>
+      <p>Ask anything about the maintenance records</p>
+      <div id="cards"></div>
+    </div>
+    <div id="chat"></div>
+  </div></div>
+
+  <div id="bottom">
+    <div id="inwrap">
+      <textarea id="q" rows="1" placeholder="Ask about the maintenance records"></textarea>
+      <button id="send" title="Send"></button>
+    </div>
+    <div id="disc">Answers only what the records contain. Every citation is checked against the source text.</div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), chat=$('#chat'), scroll=$('#scroll');
+let busy=false, INFO={};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// 사이드바 브랜드 마크. 별 아래에 학교와 연구실을 두 줄로 붙인다.
+const BRANDMARK=`<svg width="20" height="20" viewBox="0 0 24 24" role="img"
+ aria-label="KMOU MMLAB">
+<defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#4285f4"/><stop offset=".45" stop-color="#9b72cb"/>
+<stop offset="1" stop-color="#d96570"/>
+</linearGradient></defs>
+<path fill="url(#kg)" d="M12 1.4 14.2 9.2l7.8 2.2-7.8 2.2L12 21.4 9.8 13.6 2 11.4l7.8-2.2z"/>
+</svg><span class="bkm">KMOU<i>MMLAB</i></span>`;
+
+const SPARK=`<svg class="sp" width="26" height="26" viewBox="0 0 24 24">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#4285f4"/><stop offset=".45" stop-color="#9b72cb"/><stop offset="1" stop-color="#d96570"/>
+</linearGradient></defs>
+<path fill="url(#g)" d="M12 2.5 13.9 9l6.6 1.9-6.6 1.9L12 19.4 10.1 12.8 3.5 10.9 10.1 9z"/>
+<path fill="url(#g)" d="M18.8 2.6 19.6 5.3 22.3 6.1 19.6 6.9 18.8 9.6 18 6.9 15.3 6.1 18 5.3z" opacity=".75"/></svg>`;
+const CARD_ICON={
+ table:'<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4zm2 4v3h4V8zm6 0v3h6V8zM6 13v3h4v-3zm6 0v3h6v-3z"/></svg>',
+ steps:'<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h10v2H4zm0 5h10v2H4zm0 5h10v2H4zM17 6h3v2h-3zm0 5h3v2h-3zm0 5h3v2h-3z"/></svg>',
+ warn:'<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 1 21h22zm0 5 7.5 12h-15zM11 10h2v5h-2zm0 6h2v2h-2z"/></svg>'};
+
+// 한 대화 안의 문답 이력. 후속 질문을 독립 질문으로 다시 쓰는 데에만 쓴다.
+// 답변 생성 프롬프트에는 넣지 않는다 — 인용 검증이 대조하는 문맥이 흐려진다.
+// 대화는 세션 단위로 담는다. 턴을 화면의 노드가 아니라 세션에 매어 두어야,
+// 답변 도중에 새 대화를 열어도 결과가 제 대화에 남는다. 예전에는 노드에
+// 매여 있어 화면을 비우면 결과가 사라지고, 그 답이 새 대화의 맥락에 섞였다.
+const STOPPED_HTML=`<div class="note stop"><b>Stopped</b>`
+  +`<div class="why">Generation was stopped. The inference server released the slot, `
+  +`so the next question starts right away.</div></div>`;
+// 판(skin). 기본은 어두운 판이다. 고른 값은 브라우저에 남긴다.
+const TH_KEY='maintqa.theme';
+
+function applyTheme(dark){
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  const c=$('#thchk'); if(c) c.checked=dark;
+  const l=$('#thlight'), d=$('#thdark');
+  if(l) l.classList.toggle('on', !dark);
+  if(d) d.classList.toggle('on', dark);
+}
+
+function loadTheme(){
+  // 판 자체는 <head> 스크립트가 이미 붙였다. 여기서는 토글의 모양만 맞춘다.
+  applyTheme(document.documentElement.dataset.theme !== 'light');
+}
+
+// 한국어 병기. 기본은 꺼짐 — 켜면 생성 토큰이 두 배가 되어 그만큼 느려진다.
+let BI=false;
+const BI_KEY='maintqa.bilingual';
+
+function loadBI(){
+  try{ BI = localStorage.getItem(BI_KEY)==='1'; }catch(e){ BI=false; }
+  const c=$('#bichk'); if(c) c.checked=BI;
+}
+function saveBI(){
+  try{ localStorage.setItem(BI_KEY, BI?'1':'0'); }catch(e){}
+}
+
+let ABORT=null;             // 지금 진행 중인 답변을 끊는 손잡이
+let QUEUE=[];               // 답변 중에 들어와 줄 서 있는 질문
+// 대화 전부를 한 줄로 늘어놓는다. 새로 만든 것이 앞이다. 보고 있는
+// 대화도 이 안에 있고, CUR 은 그중 하나를 가리키기만 한다. 둘로 나눠 두면
+// 목록을 그릴 때마다 보고 있는 것을 맨 앞에 붙이게 되어, 눌러 보는 것만으로
+// 자리가 바뀐다.
+let SESSIONS=[];            // 대화 전부 (새것이 앞)
+let CUR=null;               // 그중 지금 보고 있는 것
+// 대화와 턴의 식별자. 일련번호를 쓰면 탭을 둘 열었을 때 양쪽이 같은
+// 번호를 만들어 서로를 덮어쓰고, 보관함을 비운 뒤에는 옛 주소가 엉뚱한
+// 대화를 가리킨다. 번호가 아니어야 개수도 드러나지 않는다.
+function uid(bytes){
+  const a=new Uint8Array(bytes||8);
+  if(self.crypto && self.crypto.getRandomValues) self.crypto.getRandomValues(a);
+  else for(let i=0;i<a.length;i++) a[i]=Math.floor(Math.random()*256);
+  return Array.from(a, b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function newSession(){
+  return {id:uid(8), turns:[], hist:[]};
+}
+
+// ── 보관 ────────────────────────────────────────────────
+// 주소를 붙였으면 새로고침 후에도 그 주소가 가리키는 것이 있어야 한다.
+// 이 PC 의 브라우저 안에만 남고 서버로 가지 않는다.
+const STORE='maintqa.sessions.v1';
+const KEEP=30;              // 보관할 대화 수. 시연 문항 21개가 다 남아야 한다.
+
+function save(){
+  try{
+    const all=SESSIONS.filter(x=>x.turns.length).slice(0,KEEP);
+    localStorage.setItem(STORE, JSON.stringify(
+      {cur:CUR.id, list:all.map(x=>({
+        id:x.id, hist:x.hist, title:x.title,
+        turns:x.turns.map(t=>({n:t.n, q:t.q, q1:t.q1, q2:t.q2,
+                              html:t.pending?'':t.html}))
+          .filter(t=>t.html)}))}));
+  }catch(e){ /* 용량 초과나 차단. 대화는 메모리에 그대로 있다. */ }
+}
+
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(STORE)||'null');
+    if(!d||!Array.isArray(d.list)) return null;
+    const list=d.list.filter(x=>x.turns&&x.turns.length);
+    // 식별자를 난수로 바꾸기 전에 저장된 대화는 번호(1, 2, 3…)를 달고 있다.
+    // 화면의 data-s 는 언제나 문자열이라 3 === "3" 이 거짓이 되고, 눌러도
+    // 아무 일도 일어나지 않았다. 주소도 /c/3 이라 새로고침하면 없는 쪽을
+    // 가리킨다. 되살릴 때 한 번만 갈아 끼우면 둘 다 풀린다.
+    const ok=v=>typeof v==='string' && /^[0-9a-f]{8,32}$/i.test(v);
+    let cur=d.cur;
+    for(const x of list){
+      if(ok(x.id)) continue;
+      const nid=uid(8);
+      if(String(x.id)===String(cur)) cur=nid;
+      x.id=nid;
+    }
+    return list.length?{list, cur}:null;
+  }catch(e){ return null; }
+}
+
+// ── 주소 ────────────────────────────────────────────────
+function urlFor(ss){ return ss.turns.length ? '/c/'+ss.id : '/'; }
+
+function pushURL(ss, replace){
+  const u=urlFor(ss);
+  if(location.pathname===u) return;
+  try{ history[replace?'replaceState':'pushState']({s:ss.id}, '', u); }catch(e){}
+}
+
+function idFromURL(){
+  // 식별자는 16자리 16진수다. 숫자로 바꾸면 안 된다.
+  const m=location.pathname.match(/^\/c\/([0-9a-f]{8,32})$/i);
+  return m?m[1].toLowerCase():null;
+}
+
+let RENAMING=null;          // 이름을 고치고 있는 대화
+let MENU=null;              // 열려 있는 우클릭 메뉴
+
+function sessTitle(ss){
+  if(ss.title) return ss.title;
+  return ss.turns.length ? (ss.turns[0].q1||ss.turns[0].q) : 'Empty chat';
+}
+
+// 답은 늘 한국어와 영어로 함께 낸다. 사용자가 고를 것이 없으므로
+// 언어 상태를 두지 않는다. 질문이 어느 말인지는 서버가 글자를 보고 가른다.
+const EMPTY='Type a question first — ask anything about the maintenance records.';
+const QUEUED='Queued. The inference server answers one question at a time, so this one '
+           +'starts as soon as the current answer finishes.';
+const QUEUED_HTML=`<div class="think"><span class="qwait"></span>`
+  +`<span>Waiting for the current answer to finish…</span></div>`;
+
+let toastT=null;
+function toast(msg){
+  const el=$('#toast'); if(!el) return;
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),2600);
+}
+
+const IC_GEAR=`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">`
+ +`<path d="M19.14 12.94a7.07 7.07 0 0 0 0-1.88l2.03-1.58a.5.5 0 0 0 .12-.62l-1.92-3.32a.5.5`
+ +` 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0`
+ +` 0-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.86a.5.5 0 0 0`
+ +` .12.62l2.03 1.58a7.07 7.07 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.62l1.92 3.32c.13.22.39.3`
+ +`.6.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36`
+ +`-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.22.08.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.62z`
+ +`M12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>`;
+
+// ── 설정 창 ─────────────────────────────────────────────
+let SHEET_T=null, SHEET_D=null;   // 마지막으로 읽어 둔 설정 값
+
+function row(k, v){
+  // 값이 없으면 줄 자체를 빼서 빈 표가 그려지지 않게 한다
+  if(v==null||v===''||v==='()'||v==='—') return '';
+  return `<tr><td>${esc(k)}</td><td>${v}</td></tr>`;
+}
+
+// 메모리 칸만 따로 그린다. 창이 열려 있는 동안 바뀌는 것은 여기뿐이라
+// 판 전체를 다시 그리면 깜빡이고 스크롤도 처음으로 돌아간다.
+function memHTML(d){
+  const mem=d.mem||{};
+  const gb=v=>v==null?'':`<b>${v}</b> GB`;
+  let mh='';
+  if(mem.ok){
+    const pct=Math.min(100, Math.round(mem.model_gb/mem.sys_total_gb*100));
+    mh=`<div class="smeter"><i class="${mem.sys_pct>88?'hot':''}"
+          style="width:${pct}%"></i></div>`
+      +`<table class="stab">`
+      + row('Model process', gb(mem.model_gb)+` &nbsp;<span style="opacity:.7">`
+          +`${pct}% of system memory</span>`)
+      + row('System in use', gb(mem.sys_used_gb)+` / ${mem.sys_total_gb} GB `
+          +`(${mem.sys_pct}%)`)
+      + row('Inference processes', mem.procs)
+      +`</table>`
+      +`<div class="snote">Read from the running llama-server process, so this is what the
+        model is actually holding right now — weights plus the KV cache that fills as the
+        context grows. The integrated GPU shares system memory, so there is no separate
+        VRAM figure.</div>`;
+  }else if(mem.sys_total_gb){
+    // 학생 이식판: 모델 프로세스를 특정하지 못하면 시스템 메모리만 보인다
+    const pct=Math.min(100, Math.round(mem.sys_pct||0));
+    mh=`<div class="smeter"><i class="${mem.sys_pct>88?'hot':''}" style="width:${pct}%"></i></div>`
+      +`<table class="stab">`
+      + row('System in use', gb(mem.sys_used_gb)+` / ${mem.sys_total_gb} GB (${mem.sys_pct}%)`)
+      +`</table><div class="snote">${esc(mem.note||'')}</div>`;
+  }else{
+    mh=`<div class="snote">${esc(mem.note||'Not available.')}</div>`;
+  }
+  return mh;
+}
+
+function sheetHTML(d){
+  // 학생 이식판: GGUF 를 설정하지 않았으면(Ollama · LM Studio 등) 설정값만 보인다.
+  const m=d.model||{}, dc=d.dict||{}, rt=d.runtime||{};
+  const gb=v=>v==null?'':`<b>${v}</b> GB`;
+  const le=m.kv_note?'≤ ':'';
+  const tabs=(dc.tables||[]).map(([t,c])=>`${esc(t)} ${c}`).join(' · ');
+  const req=rt.request ? Object.entries(rt.request).map(([k,v])=>
+      `${esc(k)}=${esc(typeof v==='object'?JSON.stringify(v):v)}`).join(' · ') : '';
+  return `
+  <div class="sgrp"><h3>Model</h3><table class="stab">`
+   + row('Name', `<b>${esc(m.name||'')}</b>`)
+   + row('Backend', esc(rt.preset||m.preset||''))
+   + row('Endpoint', esc(rt.base_url||m.base_url||''))
+   + row('Vendor', esc(m.vendor||''))
+   + row('Architecture', esc(m.arch||''))
+   + row('Parameters', esc(m.params||''))
+   + row('Quantization', m.quant ? `${esc(m.quant)} (${esc(m.quant_text||'')})` : '')
+   + row('Layers', m.n_layer)
+   + row('Embedding width', m.n_embd)
+   + row('Attention heads', m.n_head)
+   + row('KV heads', m.n_kv_head==null ? '' : esc(String(m.n_kv_head)))
+   + row('Training context', m.ctx_train ? m.ctx_train.toLocaleString()+' tokens' : '')
+   + row('Weight file', m.file ? esc(m.file)+((m.file_gb||m.size_gb)?' — '+gb(m.file_gb||m.size_gb):'') : '')
+   + row('KV cache at 8,192 ctx', m.kv_cache_gb==null ? '' : le+gb(m.kv_cache_gb))
+   + row('Load requirement', m.need_gb==null ? '' : le+gb(m.need_gb))
+   +`</table>
+     <div class="snote">${m.source==='gguf'
+       ? 'Read straight from the GGUF file header, so these figures always match the weights that are actually loaded.'
+         + (m.kv_note ? ' The KV cache is an upper bound: sliding-window layers are counted at the full context.' : '')
+       : esc(m.note||'No GGUF file is configured, so only the values in config.json are shown.')}</div></div>
+
+  <div class="sgrp"><h3>Memory in use</h3><div id="smem">${memHTML(d)}</div></div>
+
+  <div class="sgrp"><h3>Runtime</h3><table class="stab">`
+   + row('Context window', rt.ctx ? rt.ctx.toLocaleString()+' tokens (config.json — set the same in your runner)' : '')
+   + row('Request fields', req)
+   + row('GPU layers', rt.ngl)
+   + row('Parallel slots', rt.slots)
+   + row('Prompt cache reuse', rt.cache_reuse!=null ? rt.cache_reuse+' tokens' : '')
+   + row('Last call', rt.last && rt.last.prompt_tokens!=null
+         ? `${rt.last.prompt_tokens.toLocaleString()} prompt tokens · ${rt.last.completion_tokens??'—'} generated · ${rt.last.sec}s` : '')
+   + row('Prompt condition', `F — full data dictionary`)
+   + row('Database', `${esc(rt.db||'')} — student DB: 1,000 maintenance documents + 200 benchmark Q&amp;A (pseudonymised codes)`)
+   + row('Records indexed', rt.docs ? rt.docs.toLocaleString() + (rt.docs_ref
+         ? ` (${(rt.docs-rt.docs_ref).toLocaleString()} maintenance documents + ${rt.docs_ref.toLocaleString()} reference records)` : '') : '')
+   +`</table></div>
+
+  <div class="sgrp"><h3>Demonstration</h3>
+     <button class="sbtn" id="seedrest">Ask only the questions that are missing</button>
+     &nbsp;<button class="sbtn" id="seedbtn">Start over — clear and ask all of them</button>
+     <div class="snote">Each suggested question is asked once and kept as its own chat.
+      Every question is actually answered by the model, so asking all of them takes several
+      minutes; filling in the missing few usually takes seconds. Keep the tab open while it
+      runs, and do not use the tool in another tab — the chat list is shared between tabs.</div></div>
+
+  <div class="sgrp"><h3>Ontology — data dictionary</h3>`
+   + (dc.ok ? `<table class="stab">`
+       + row('Column entries', `<b>${dc.n}</b>`)
+       + row('Per table', esc(tabs))
+       + row('Entries with synonyms', `${dc.with_syn} (${Math.round(dc.with_syn/dc.n*100)}%)`)
+       + row('Surface forms', `${dc.exprs} (${dc.uniq} distinct)`)
+       + row('Annotated in the prompt', `${dc.annotated} of ${dc.n} columns`)
+       + row('Schema + comments', `${dc.chars.toLocaleString()} characters`)
+       + row('Equipment terminology map', `${dc.terms} entries → ${dc.term_names} corpus names`)
+       +`</table>
+       <button class="sbtn" id="dictopen">Open the dictionary</button>
+       <div class="snote">A lightweight semantic layer, not a formal ontology: it carries a
+        definition and the words people actually use for each column, but no hierarchy, no
+        axioms and no reasoner. It bridges the gap between a spoken question and the English
+        column names — "generator" is nowhere in the schema, but the dictionary maps it to
+        MACH_DESC = GENERATOR ENGINE(DIESEL). The equipment map does the same for machinery
+        names so the search terms match the wording the records use.</div>`
+     : `<div class="snote">${esc(dc.note||'Not available.')}</div>`)
+   +`</div>`;
+}
+
+// 404 도 본문이 JSON({}) 이라 .json() 이 성공한다. 코드를 봐야
+// '서버가 아직 옛 빌드' 인 상황을 빈 표로 그리지 않는다.
+async function loadSettings(){
+  const res=await fetch('/api/settings');
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const d=await res.json();
+  if(!d||!d.model) throw new Error('empty');
+  SHEET_D=d;
+  return d;
+}
+
+const SHEET_ERR='<div class="snote">Could not read the settings. '
+  +'The server is running an older build that has no settings endpoint. '
+  +'Restart it (run STOP.bat, then START.bat) and reopen this panel.</div>';
+
+// ── 사전 찾아보기 ───────────────────────────────────────
+// 세어 놓은 수만 보이면 그 안에 무엇이 들어 있는지 알 길이 없다.
+// 사전 원문을 받아 한 칸에서 걸러 보게 한다. 읽기만 한다.
+let DICT_D=null, DICT_Q='';
+
+async function loadDict(){
+  if(DICT_D) return DICT_D;
+  const res=await fetch('/api/dict');
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const d=await res.json();
+  if(!d||!d.ok) throw new Error('empty');
+  DICT_D=d;
+  return d;
+}
+
+function dictRows(d, q){
+  const s=q.trim().toLowerCase();
+  const hit=v=>String(v||'').toLowerCase().includes(s);
+  const cols=!s ? d.cols : d.cols.filter(x=>hit(x.c)||hit(x.d)||hit(x.s)||hit(x.t));
+  const terms=!s ? d.terms : d.terms.filter(x=>hit(x.en)||x.a.some(hit));
+  return {cols, terms};
+}
+
+function dictBody(d, q){
+  const {cols, terms}=dictRows(d, q);
+  const tot=d.cols.length+d.terms.length, now=cols.length+terms.length;
+  let h=`<div class="dsearch">
+    <input id="dq" type="search" placeholder="Filter by column, table, meaning or the words people use"
+      value="${esc(q)}" autocomplete="off">
+    <span class="dcnt">${now} of ${tot}</span></div>`;
+  if(!now) return h+`<div class="dempty">Nothing matches that.</div>`;
+  if(cols.length){
+    h+=`<div class="sgrp"><h3>Columns — ${cols.length}</h3>
+      <table class="dtab"><colgroup><col style="width:23%"><col style="width:30%"><col style="width:47%"></colgroup>
+      <thead><tr><th>Column</th><th>Meaning</th><th>Words people use</th></tr></thead><tbody>`
+      + cols.map(x=>`<tr><td class="mono">${esc(x.c)}<br><span class="tg">${esc(x.t)}</span></td>
+          <td>${esc(x.d)}</td><td class="syn">${esc(x.s||'—')}</td></tr>`).join('')
+      + `</tbody></table></div>`;
+  }
+  if(terms.length){
+    h+=`<div class="sgrp"><h3>Equipment terminology — ${terms.length}</h3>
+      <table class="dtab"><colgroup><col style="width:53%"><col style="width:47%"></colgroup>
+      <thead><tr><th>Words people use</th><th>Value in the records</th></tr></thead><tbody>`
+      + terms.map(x=>`<tr><td class="syn">${esc(x.a.join(', '))}</td>
+          <td class="mono">${esc(x.en)}</td></tr>`).join('')
+      + `</tbody></table></div>`;
+  }
+  return h;
+}
+
+function paintDict(){
+  const box=$('#sheetbody');
+  const at=document.activeElement===$('#dq');
+  const pos=at?$('#dq').selectionStart:0;
+  box.innerHTML=dictBody(DICT_D, DICT_Q);
+  const inp=$('#dq');
+  if(inp && at){ inp.focus(); try{ inp.setSelectionRange(pos,pos); }catch(e){} }
+}
+
+async function openDict(){
+  clearInterval(SHEET_T); SHEET_T=null;     // 사전을 보는 동안은 갱신하지 않는다
+  $('#sheet').classList.add('dict');
+  $('#sheeth').textContent='Ontology — data dictionary';
+  $('#sheetbody').innerHTML='<div class="snote">Reading…</div>';
+  try{ await loadDict(); DICT_Q=''; paintDict(); }
+  catch(e){ $('#sheetbody').innerHTML='<div class="snote">Could not read the dictionary.</div>'; }
+}
+
+function backToSettings(){
+  $('#sheet').classList.remove('dict');
+  $('#sheeth').textContent='Settings';
+  openSheet();
+}
+
+async function openSheet(){
+  $('#sheetbg').classList.add('on');
+  // 읽어 둔 값이 있으면 곧바로 그린다. 기다리는 문구는 정말 아무것도
+  // 없을 때만 보인다. 모델 제원은 바뀌지 않으므로 옛 값이라도 맞다.
+  $('#sheetbody').innerHTML = SHEET_D ? sheetHTML(SHEET_D)
+                                      : '<div class="snote">Reading…</div>';
+  const first = !SHEET_D;
+  try{
+    const d=await loadSettings();
+    if(first) $('#sheetbody').innerHTML=sheetHTML(d);
+    else { const el=$('#smem'); if(el) el.innerHTML=memHTML(d); }
+  }catch(e){ if(first) $('#sheetbody').innerHTML=SHEET_ERR; }
+  // 점유량은 지금 값이라야 뜻이 있다. 창이 열려 있는 동안 그 칸만 갈아 끼운다.
+  clearInterval(SHEET_T);
+  SHEET_T=setInterval(async()=>{
+    try{ const d=await loadSettings(); const el=$('#smem');
+         if(el) el.innerHTML=memHTML(d); }catch(e){}
+  }, 3000);
+}
+
+function closeSheet(){
+  $('#sheetbg').classList.remove('on');
+  $('#sheet').classList.remove('dict');
+  $('#sheeth').textContent='Settings';
+  clearInterval(SHEET_T); SHEET_T=null;
+}
+
+// 서버가 기록한 단계를 그린다. 끝난 단계는 걸린 시간을,
+// 진행 중인 단계는 지금까지의 경과를 보인다.
+function stageHTML(p, nowSec){
+  if(!p) return '';
+  const rows=(p.done||[]).map(d=>
+    `<div class="st ok"><span class="ic">✓</span>
+      <span class="sl">${esc(d.label)}</span>
+      <span class="sv">${d.sec.toFixed(1)}s</span></div>`);
+  if(p.now)
+    rows.push(`<div class="st on"><span class="ic"><i></i></span>
+      <span class="sl">${esc(p.now)}…</span>
+      <span class="sv">${nowSec.toFixed(0)}s</span></div>`);
+  return rows.length?`<div class="stages">${rows.join('')}</div>`:'';
+}
+
+function autosize(){const t=$('#q');t.style.height='auto';t.style.height=Math.min(t.scrollHeight,180)+'px';}
+function toggleSend(){$('#send').classList.toggle('on', $('#q').value.trim().length>0 && !busy);}
+function atBottom(){scroll.scrollTop=scroll.scrollHeight;}
+
+async function boot(){
+  INFO=await (await fetch('/api/info')).json();
+  // 설정과 사전을 미리 받아 둔다. 눌렀을 때 기다림이 없어야 한다.
+  loadSettings().catch(()=>{});
+  loadDict().catch(()=>{});
+  // 주소에 ?seed=1 이 붙어 있으면 지난 대화를 문항으로 채운다.
+  try{
+    // ?seed=rest 는 없는 것만, ?seed=1 은 비우고 전부
+    const sd=new URLSearchParams(location.search).get('seed');
+    if(sd) seedAll(sd==='rest');
+  }catch(e){}
+  // 사이드바 상단에는 이름만 크게, 양자화는 그 아래 작게 둔다
+  $('#bspark').innerHTML=BRANDMARK;
+  $('#sbmodel').textContent=(INFO.model||'').replace(/\s*\([^)]*\)\s*$/,'');
+  // 내부 표기와 뜻을 함께 보인다. 표기만으로는 읽히지 않고,
+  // 뜻만 두면 어느 파일을 쓰는지 대조할 수 없다.
+  $('#sbquant').textContent=
+    INFO.quant ? `${INFO.quant} (${INFO.quant_text||'quantized'})`
+               : (INFO.quant_text||'');
+  // 학생 이식판: 색인 = 정비 문서 기록(master) + 참고 기록(qa_proc_context)
+  $('#sidemeta').textContent= INFO.docs_ref
+    ? `${INFO.docs.toLocaleString()} records indexed · ${(INFO.docs-INFO.docs_ref).toLocaleString()} documents`
+      + ` + ${INFO.docs_ref.toLocaleString()} reference`
+    : `${INFO.docs.toLocaleString()} maintenance records indexed`;
+  // 학생 이식판: LLM 이 이 PC·사내망 밖이면 바닥글을 바꿔 알린다
+  if(INFO.remote){ const s=document.querySelector('.sft > span');
+    if(s) s.textContent='Remote LLM — questions leave this PC'; }
+  const qs=INFO.samples||[];
+  $('#qlist').innerHTML=qs.map(q=>`<button class="qitem" title="${esc(q)}">${esc(q)}</button>`).join('');
+  $('#qlist').onclick=e=>{const b=e.target.closest('.qitem'); if(b) send(b.title,true);};
+  // 첫 화면 카드. 네 가지 성격을 하나씩 보이되 빠른 것부터 둔다.
+  // 시연에서 첫 클릭이 5초에 답하면 흐름이 끊기지 않는다.
+  const pick=(...k)=>qs.find(q=>k.every(x=>q.toLowerCase().includes(x)));
+  // 학생 이식판: 예시 질문 파일(data/demo_questions.txt)이 바뀌어 고르는 낱말을 바꿨다
+  // (기권 Q072 · 집계 Q090 · 절차 P022 · 판정 기준 P063 — 문항ID 는 DB 의 qa_aggregate · qa_procedural)
+  const picks=[pick('평균 몇 명')||qs[0],
+               pick('호기별')||qs[1],
+               pick('windlass brake')||qs[2],
+               pick('mooring winch remote')||qs[3]].filter(Boolean);
+  const tags=['Abstains — not recorded','Aggregate · SQL',
+              'Procedure · cited','Judgement criteria'];
+  const ic=['warn','table','steps','steps'];
+  $('#cards').innerHTML=picks.map((q,i)=>
+    `<button class="card" data-q="${esc(q)}"><span class="tag">${tags[i]}</span>${esc(q)}
+     <span class="ci">${CARD_ICON[ic[i]]}</span></button>`).join('');
+  $('#cards').onclick=e=>{const c=e.target.closest('.card'); if(c) send(c.dataset.q,true);};
+}
+
+const IC_SEND=`<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">`
+  +`<path d="M3 20V4l19 8zm2-3 11.85-5L5 7v3.5l6 1.5-6 1.5z"/></svg>`;
+const IC_STOP=`<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">`
+  +`<rect x="5" y="5" width="14" height="14" rx="2.5"/></svg>`;
+
+// 보내기와 정지가 같은 자리를 쓴다. 답변 중에는 정지만 누를 수 있다.
+function setSend(mode){
+  const b=$('#send');
+  if(mode==='stop'){
+    b.classList.add('stop'); b.disabled=false;
+    b.title='Stop generating'; b.innerHTML=IC_STOP;
+  }else{
+    b.classList.remove('stop'); b.title='Send'; b.innerHTML=IC_SEND;
+    toggleSend();
+  }
+}
+
+const THINKING=`<div class="think"><span class="dots"><i></i><i></i><i></i></span>`
+  +`<span>Thinking</span><span class="el" style="margin-left:4px"></span></div>`;
+
+function turnHTML(t){
+  // 병기 모드면 질문도 두 언어로 보인다. 영어가 주, 한국어가 아래다.
+  const qh = t.q2
+    ? `${esc((t.q1||'').trim())}<span class="qko">${esc((t.q2||'').trim())}</span>`
+    : esc((t.q||'').trim());
+  return `<div class="turn" data-t="${t.n}"><div class="q"><span>${qh}</span></div>
+   <div class="a"><div class="spark">${SPARK}</div><div class="abody">${t.html}</div></div></div>`;
+}
+
+// 화면은 언제나 CUR 을 그린 결과다. 노드를 직접 붙이지 않고 세션을 다시 그린다.
+function paintSession(){
+  chat.innerHTML=CUR.turns.map(turnHTML).join('');
+  $('#hello').style.display=CUR.turns.length?'none':'';
+  atBottom();
+}
+
+function bodyNode(t){
+  const el=chat.querySelector(`.turn[data-t="${t.n}"] .abody`);
+  return el||null;
+}
+
+// 지난 대화 목록. 답을 기다리는 중인 대화에는 표시를 남긴다.
+function paintList(){
+  const base=SESSIONS.filter(x=>x.turns.length);
+  // 답을 기다리는 대화만 맨 위로 올린다. 다른 대화를 열어 보더라도 어디서
+  // 답이 오고 있는지 놓치지 않게 하려는 것이다. 그 외에는 만들어진 순서
+  // 그대로다. sort 는 안정 정렬이라 나머지 자리는 움직이지 않는다.
+  const waiting=x=>x.turns.some(t=>t.pending)?1:0;
+  const all=base.slice().sort((a,b)=>waiting(b)-waiting(a));
+  $('#hsect').hidden=!all.length;
+  $('#hlist').innerHTML=all.map(ss=>{
+    const wait=ss.turns.some(t=>t.pending);
+    if(ss.id===RENAMING)
+      return `<div class="hitem on" data-s="${ss.id}">
+        <input class="hedit" value="${esc(sessTitle(ss))}" maxlength="80"></div>`;
+    return `<button class="hitem ${ss===CUR?'on':''}" data-s="${ss.id}"
+      title="${esc(sessTitle(ss))}">
+      ${wait?'<span class="hw"></span>':''}
+      <span class="ht">${esc(sessTitle(ss))}</span>
+      <span class="hn">${ss.turns.length}</span></button>`;
+  }).join('');
+  if(RENAMING!==null){
+    const inp=$('#hlist .hedit');
+    if(inp){ inp.focus(); inp.select(); }
+  }
+}
+
+function allSessions(){ return SESSIONS; }
+function findSession(id){ return SESSIONS.find(x=>x.id===id); }
+
+function closeMenu(){ if(MENU){ MENU.remove(); MENU=null; } }
+
+const IC_PEN=`<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">`
+  +`<path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75zm17.7-10.2a1 1 0 0 0 0-1.41l-2.34-2.34`
+  +`a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z"/></svg>`;
+const IC_BIN=`<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">`
+  +`<path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"/></svg>`;
+
+function openMenu(x, y, id){
+  closeMenu();
+  const m=document.createElement('div');
+  m.className='ctxmenu';
+  m.innerHTML=`<button data-a="rename">${IC_PEN}Rename</button>`
+             +`<button data-a="delete">${IC_BIN}Delete</button>`;
+  document.body.appendChild(m);
+  // 화면 밖으로 넘어가지 않게 자리를 잡는다
+  const r=m.getBoundingClientRect();
+  m.style.left=Math.max(6, Math.min(x, innerWidth-r.width-6))+'px';
+  m.style.top=Math.max(6, Math.min(y, innerHeight-r.height-6))+'px';
+  m.onclick=e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    closeMenu();
+    if(b.dataset.a==='rename') startRename(id);
+    else deleteSession(id);
+  };
+  MENU=m;
+}
+
+function startRename(id){ RENAMING=id; paintList(); }
+
+function commitRename(v){
+  const ss=findSession(RENAMING);
+  RENAMING=null;
+  if(ss){
+    const t=(v||'').trim();
+    // 비우면 붙인 이름을 떼고 첫 질문으로 돌아간다
+    if(t) ss.title=t; else delete ss.title;
+  }
+  paintList(); save();
+}
+
+function deleteSession(id){
+  const i=SESSIONS.findIndex(x=>x.id===id);
+  if(i<0) return;
+  const ss=SESSIONS[i];
+  // 지운 대화에 줄 서 있던 질문은 함께 뺀다. 남겨 두면 없는 대화에
+  // 답을 넣으려 한다.
+  QUEUE=QUEUE.filter(x=>x.sess!==ss);
+  SESSIONS.splice(i, 1);
+  if(ss===CUR){
+    // 보고 있던 것을 지웠으면 그 자리에 오게 된 것으로, 그것도 없으면
+    // 바로 위의 것으로 간다. 목록의 다른 자리는 건드리지 않는다.
+    CUR=SESSIONS[i] || SESSIONS[i-1];
+    if(!CUR){ CUR=newSession(); SESSIONS.unshift(CUR); }
+    paintSession(); pushURL(CUR);
+  }
+  paintList(); save();
+}
+
+function openSession(id){
+  const ss=SESSIONS.find(x=>x.id===id);
+  if(!ss||ss===CUR) return;
+  // 가리키는 곳만 옮긴다. 목록의 자리는 손대지 않는다. 눌러 봤다고 순서가
+  // 바뀌면 하나씩 확인하는 동안 목록이 계속 뒤집혀, 방금 본 것이 어디
+  // 있었는지 잃는다. 보고 있는 대화는 자리가 아니라 강조로 나타낸다.
+  CUR=ss;
+  paintSession(); paintList(); pushURL(CUR); save();
+}
+
+function startNewChat(){
+  // 쓰지 않은 빈 대화는 목록에 나오지 않지만 그대로 쌓이면 보관 칸만
+  // 차지한다. 비어 있으면 새것에 자리를 물려준다.
+  const i=SESSIONS.indexOf(CUR);
+  if(i>=0 && !CUR.turns.length) SESSIONS.splice(i, 1);
+  CUR=newSession();
+  SESSIONS.unshift(CUR);
+  paintSession(); paintList(); pushURL(CUR); save();
+}
+
+// ── 시연 준비: 문항을 한 번에 돌려 지난 대화를 채운다 ──────────
+// 지난 대화는 이 브라우저 안에만 있어 서버가 대신 만들어 줄 수 없다.
+// 화면이 스스로 하나씩 물어 각각을 별개의 대화로 남긴다. 주소에
+// ?seed=1 을 붙였을 때만 돈다. 문항 전부를 실제로 추론하므로 몇 분 걸린다.
+let SEEDING=false;
+
+function seedBar(text, k, tot){
+  const b=$('#seedbar'); if(!b) return;
+  if(!text){ b.hidden=true; b.innerHTML=''; return; }
+  b.hidden=false;
+  b.innerHTML=`<span class="sbw"></span><span>${esc(text)}</span>`
+    +(tot?`<span class="sbn">${k} / ${tot}</span>`:'');
+}
+
+// rest 가 참이면 목록을 비우지 않고 아직 없는 문항만 묻는다. 중간에
+// 끊긴 것을 이어서 채울 때 쓴다. 무엇이 빠졌는지는 화면만 알 수 있다 —
+// 지난 대화는 이 브라우저 안에만 있기 때문이다.
+async function seedAll(rest){
+  if(SEEDING){ toast('Already filling the list.'); return; }
+  const qs=(INFO.samples||[]).slice();
+  if(!qs.length){ toast('No questions to fill the list with.'); return; }
+  if(busy){ toast('Wait for the current answer to finish.'); return; }
+  SEEDING=true;
+  let todo=qs;
+  if(rest){
+    const have=new Set(SESSIONS.filter(x=>x.turns.length).map(x=>x.turns[0].q));
+    todo=qs.filter(q=>!have.has(q));
+    if(!todo.length){
+      SEEDING=false;
+      toast(`All ${qs.length} questions are already in the list.`);
+      return;
+    }
+    // 빈 대화가 보고 있는 자리면 그것부터 쓴다
+    if(CUR.turns.length){ startNewChat(); }
+  }else{
+    try{ localStorage.removeItem(STORE); }catch(e){}
+    SESSIONS=[]; QUEUE=[]; CUR=newSession(); SESSIONS.unshift(CUR);
+    paintSession(); paintList();
+  }
+  // 뒤에서부터 묻는다. 목록은 새것이 앞이므로 느린 문항을 먼저 물어야
+  // 다 끝났을 때 화면의 차례가 추천 질문 차례와 같아진다.
+  const order=todo.slice().reverse();
+  try{
+    for(let i=0;i<order.length;i++){
+      if(CUR.turns.length) startNewChat();
+      const sess=CUR;
+      const t={n:uid(4), q:order[i], html:THINKING, pending:true};
+      sess.turns.push(t);
+      pushURL(sess, true);
+      paintSession(); paintList();
+      seedBar('Filling recent chats — keep this tab open', i+1, order.length);
+      await runTurn(sess, t);
+      save();
+    }
+    seedBar('');
+    toast(rest ? `Done. ${order.length} more added.`
+               : `Done. ${order.length} chats are in the list.`);
+  }finally{
+    SEEDING=false;
+    seedBar('');
+  }
+}
+
+async function send(text, fresh){
+  const q=(text ?? $('#q').value).trim();
+  if(!q){
+    // 아무 일도 안 일어나면 고장인지 알 수 없다. 무엇을 해야 하는지 알리고
+    // 입력칸으로 초점을 옮겨 바로 칠 수 있게 한다.
+    toast(EMPTY);
+    const box=$('#q'); if(box) box.focus();
+    return;
+  }
+  // 추천 질문은 서로 독립된 문항이다. 하나를 누르면 화면의 대화도
+  // 비우고 그 질문부터 새로 시작한다.
+  if(fresh) startNewChat();
+  $('#q').value=''; autosize();
+  // 이 턴이 어느 대화에 속하는지 지금 붙잡아 둔다. 답이 오는 사이에
+  // 사용자가 다른 대화로 옮겨 가도 결과는 제자리에 들어간다.
+  const sess=CUR;
+  const t={n:uid(4), q, html:THINKING, pending:true};
+  sess.turns.push(t);
+  if(sess===CUR && sess.turns.length===1) pushURL(sess, true);
+
+  if(busy){
+    // 슬롯이 하나뿐이라 지금은 못 돌린다. 버리지 말고 줄을 세운다.
+    t.html=QUEUED_HTML; t.queued=true;
+    QUEUE.push({sess, t});
+    paintSession(); paintList();
+    toast(QUEUED);
+    return;
+  }
+  paintSession(); paintList();
+  runTurn(sess, t);
+}
+
+async function runTurn(sess, t){
+  busy=true; setSend('stop');
+  t.queued=false; t.html=THINKING;
+  if(sess===CUR) paintSession();
+  const q=t.q;
+  const el=()=>{ const b=bodyNode(t); return b?b.querySelector('.el'):null; };
+  const t0=Date.now();
+  // 요청마다 식별자를 붙여 서버의 단계 기록을 따로 읽어 온다
+  const rid=Math.random().toString(36).slice(2)+Date.now().toString(36);
+  // 중단은 서버의 추론까지 끊어야 한다. 화면 쪽 fetch 도 함께 끊는다.
+  const ac=new AbortController();
+  let stopped=false;
+  ABORT=async()=>{
+    if(stopped) return;
+    stopped=true;
+    try{ await fetch('/api/cancel?id='+rid); }catch(e){}
+    ac.abort();
+  };
+  let last=null;
+  const paint=()=>{
+    // 다른 대화를 보고 있으면 그릴 노드가 없다. 그때는 조용히 건너뛴다.
+    const b=bodyNode(t); if(!b) return;
+    const e=el(); if(e) e.textContent="· "+((Date.now()-t0)/1000).toFixed(0)+"s";
+    let h=b.querySelector('.stghost');
+    if(!h){ h=document.createElement('div'); h.className='stghost'; b.appendChild(h); }
+    if(last) h.innerHTML=stageHTML(last,(Date.now()-last._at)/1000);
+  };
+  const tick=setInterval(paint,200);
+  const key=p=>`${p.now||''}|${(p.done||[]).length}`;
+  const poll=setInterval(async()=>{
+    try{
+      const p=await (await fetch('/api/progress?id='+rid)).json();
+      if(!p || !(p.now || (p.done&&p.done.length))) return;
+      // 단계가 바뀔 때만 기준 시각을 새로 잡는다. 폴링마다 잡으면
+      // 진행 중 단계의 경과가 계속 0 으로 돌아간다.
+      p._at = (last && key(last)===key(p)) ? last._at : Date.now();
+      last=p; paint();
+    }catch(e){ /* 폴링 실패는 답변과 무관하므로 조용히 넘어간다 */ }
+  },700);
+  try{
+    const r=await (await fetch('/api/ask',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      // 맥락은 지금 시점의 것을 쓴다. 줄 서 있는 사이에 앞 턴이 끝나면
+      // 그 답까지 이어받아야 대화가 이어진다.
+      body:JSON.stringify({q, hist:sess.hist.slice(-3), rid, bi:BI}),
+      signal:ac.signal})).json();
+    r._wall=((Date.now()-t0)/1000).toFixed(1);
+    // 병기 모드면 질문도 두 언어로 다시 적는다. 영어가 주다.
+    if(r.q_en && r.q_ko && r.q_en!==r.q_ko){ t.q1=r.q_en; t.q2=r.q_ko; }
+    t.html=(r.kind==='stopped') ? STOPPED_HTML : render(r);
+    t.pending=false;
+    if(r.kind==='stopped') { /* 중단된 턴은 맥락에 남기지 않는다 */ }
+    else
+    // 맥락은 그 대화의 것이다. 전역에 쌓으면 버린 대화의 답이 새 대화로 샌다.
+    if(r.summary){ sess.hist.push({q:r.resolved||q, a:r.summary});
+                   if(sess.hist.length>6) sess.hist=sess.hist.slice(-6); }
+  }catch(e){
+    // 중단해서 끊긴 것과 진짜 연결 실패를 가른다
+    t.html = stopped ? STOPPED_HTML
+      : `<div class="note err"><b>Connection failed</b>
+         <div class="why">${esc(e.message)}</div></div>`;
+    t.pending=false;
+  }
+  clearInterval(tick); clearInterval(poll);
+  // 질문 줄까지 바뀔 수 있으므로(병기) 보고 있는 대화면 통째로 다시 그린다
+  if(sess===CUR) paintSession();
+  paintList(); save();
+  const b=bodyNode(t);
+  busy=false; ABORT=null; setSend('send');
+  if(b) atBottom();
+  // 줄에 남은 것이 있으면 이어서 돌린다
+  const nx=QUEUE.shift();
+  if(nx) runTurn(nx.sess, nx.t);
+}
+
+function provTable(prov, steps, bodies){
+  if(!prov || !prov.length) return '';
+  const used={};
+  const quotes={};
+  (steps||[]).forEach(s=>{
+    if(s.ok && s.rec){
+      used[s.rec]=(used[s.rec]||0)+1;
+      (quotes[s.rec]=quotes[s.rec]||[]).push(s.quote);
+    }
+  });
+  // 원문 안에서 실제로 인용된 구절에 표시한다. 어느 문장을 근거로
+  // 삼았는지 원문과 나란히 보이게 하려는 것이다.
+  const markup=(rec,txt)=>{
+    let h=esc(txt);
+    (quotes[rec]||[]).forEach(q=>{
+      const e=esc(String(q||'').trim());
+      if(e && h.includes(e)) h=h.split(e).join(`<mark>${e}</mark>`);
+    });
+    return h;
+  };
+  const no=v=>(v===null||v===undefined||v==='')?'—':v;
+  // 열마다 어느 컬럼에서 온 값인지. 이름은 툴팁으로만 보인다.
+  const H=[['Record','search rank'],['Citation','text match result'],
+           ['Vessel','VESSELCODE · VESSEL_NAME'],['Machinery','MACH_DESC · MACH_CODE'],
+           ['Unit','MACH_NO'],['Equipment','EQUIP_DESC · EQUIP_CODE'],['Unit','EQUIP_NO'],
+           ['Document · date','DOC_NO · WORK_DATE'],['In charge','PIC · DEPT'],
+           ['Maintenance items','PMS_DESC · PMS_TYPE · PMS_INTERVAL · CRITICAL_YN']];
+  // 학생 이식판: 참고 기록(qa_proc_context)은 master 의 행이 아니다. 머리행도 그 표의 열 이름으로 따로 둔다.
+  // 선박 · 담당 · 정비 항목이 없으므로 마지막 두 칸을 합쳐, 이 본문을 고정 문맥으로 쓰는 문항을 문항별로 묶어 보인다.
+  const HR=[['Record','search rank'],['Citation','text match result'],
+            ['Source','reference record — a row of qa_proc_context, not of master'],
+            ['Machinery','qa_proc_context.machine (unit number split off)'],
+            ['Unit','unit number(s) in qa_proc_context.machine'],
+            ['Equipment','qa_proc_context.equipment (unit number split off)'],
+            ['Unit','unit number(s) in qa_proc_context.equipment'],
+            ['Date','qa_proc_context.work_date'],
+            ['Fixed context of','benchmark question (qa_proc_context.qid) · record numbers (rec_no) that carry this text',2]];
+  // 기록 하나가 '머리행 + 값 + 원문' 세 줄로 한 묶음이 되게 한다.
+  // 원문이 사이마다 끼어들어 머리행이 멀어지면 어느 열인지 알 수 없다.
+  const hrow=cols=>`<tr class="hdr">${cols.map(([k,c,span])=>
+    `<th title="${esc(c)}"${span?` colspan="${span}"`:''}>${esc(k)}</th>`).join('')}</tr>`;
+  const head=hrow(H), headRef=hrow(HR);
+  // 참고 기록: 같은 본문을 쓰는 기록(문항·기록번호)을 문항별로 묶는다 — 'P063 · records 1–4'
+  const groups=p=>(p.groups&&p.groups.length) ? p.groups
+    : [{qid:String(p.doc||'').split('-')[0], recs:[1], recs_text:String(p.doc||'').split('-')[1]||''}];
+  const usedBy=p=>groups(p).map(g=>`<b>${esc(g.qid)}</b> · ${(g.recs||[]).length>1?'records':'record'} `
+    + esc(g.recs_text||'')).join('<br>');
+  const named=(list,name,unit)=>(list&&list.length) ? list : [{name:name, units:unit}];
+  const rows=prov.map(p=>{
+    const n=used[p.rec]||0;
+    const body=(bodies||{})[String(p.rec)]||'';
+    const chip=n?`<span class="vchip vok">cited ${n}</span>`:`<span class="vchip">not cited</span>`;
+    let tr;
+    if(p.ref){
+      const ms=named(p.machs,p.mach,p.mach_no), es=named(p.equips,p.equip,p.equip_no);
+      const ds=(p.dates&&p.dates.length) ? p.dates : [p.date||''];
+      tr=headRef+`<tr class="${n?'on':''}">
+      <td class="num">${p.rec}</td>
+      <td class="num">${chip}</td>
+      <td>Reference record<span class="sub">qa_proc_context</span></td>
+      <td>${ms.map(m=>esc(m.name||'—')).join('<br>')}</td>
+      <td class="no">${ms.map(m=>esc(no(m.units))).join('<br>')}</td>
+      <td>${es.map(m=>esc(m.name||'—')).join('<br>')}</td>
+      <td class="no">${es.map(m=>esc(no(m.units))).join('<br>')}</td>
+      <td class="no">${esc(ds.length>1 ? ds[0]+' … '+ds[ds.length-1] : no(ds[0]))}${ds.length>1
+        ? `<span class="sub">${ds.length} dates</span>` : ''}</td>
+      <td class="pitems" colspan="2">${usedBy(p)}</td></tr>`;
+    }else{
+      const items=(p.items||[]).map(it=>
+          `<b>${esc(it.desc||it.code||'')}</b> ${esc(it.type||'')}`
+          +`${it.interval?` · every ${it.interval}`:''}${it.critical==='Y'?' · critical':''}`
+        ).join('<br>');
+      tr=head+`<tr class="${n?'on':''}">
+      <td class="num">${p.rec}</td>
+      <td class="num">${chip}</td>
+      <td>${esc(p.vessel||'—')}<span class="sub">${esc(p.vessel_name||'')}</span></td>
+      <td>${esc(p.mach||'—')}<span class="cd"> ${esc(p.mach_code||'')}</span></td>
+      <td class="no">${no(p.mach_no)}</td>
+      <td>${esc(p.equip||'—')}<span class="cd"> ${esc(p.equip_code||'')}</span></td>
+      <td class="no">${no(p.equip_no)}</td>
+      <td class="no">${esc(p.doc||'—')}<span class="sub">${esc(p.date||'')}</span></td>
+      <td>${esc(p.pic||'—')}<span class="sub">${p.dept?'Dept '+esc(p.dept):''}</span></td>
+      <td class="pitems">${items||'—'}</td></tr>`;
+    }
+    // 원문 머리: 참고 기록은 문항ID, 정비 문서 기록은 합성 서술이라는 표시(가명 DB 의 master 서술은 합성 문장이다)
+    const kind=p.ref ? `reference record ${groups(p).map(g=>esc(g.qid)).join(' · ')} ·`
+                     : `synthetic narrative · ${esc(p.doc||'')}`;
+    return tr + (body ? `<tr class="raw"><td colspan="10">
+        <div class="rawhead">Record ${p.rec} source text · ${kind} ${esc(p.title||'')}</div>
+        <div class="rawbody">${markup(p.rec, body)}</div></td></tr>` : '');
+  }).join('');
+  // 바닥 설명은 표에 실제로 나온 기록의 종류에 맞춘다(정비 문서 기록만 · 참고 기록만 · 둘 다)
+  const nRef=prov.filter(p=>p.ref).length;
+  const fDoc=`charge are read from <b>master</b>; maintenance items from <b>pms</b>,
+      joined on (VESSELCODE, DOC_NO). The source text is master.WORK_REMARK. In this pseudonymised student DB the
+      titles and narratives of master are synthetic sentences, so a verified quote from them shows that the answer
+      follows the record text — not that it comes from a real maintenance report.`;
+  const fRef=`Reference records come from <b>qa_proc_context</b> — the fixed retrieval context of the 100
+      procedural benchmark questions: real maintenance narratives with pseudonymised codes. Title, machinery,
+      equipment, unit numbers and date are read from that table. When several context rows carry the same text
+      (for example the same inspection on winches 1–4) their units and dates are all shown, and "Fixed context of"
+      lists the benchmark questions with their record numbers. They are not rows of master, so vessel, person in
+      charge and maintenance items are not recorded for them. The source text is qa_proc_context.content.`;
+  const foot = nRef===0 ? `Vessel, machinery, equipment, document and person in ${fDoc}`
+    : nRef===prov.length ? fRef
+    : `For maintenance documents, vessel, machinery, equipment, document and person in ${fDoc} ${fRef}`;
+  return `<div class="pwrap"><table class="ptab">
+    <tbody>${rows}</tbody>
+    <tfoot><tr><td colspan="10">${foot}</td></tr></tfoot>
+    </table></div>`;
+}
+function meta(r){
+  const t=[`<span class="r">${r.route==='AGG'?'Aggregate query':'Procedure query'}</span>`];
+  if(!r.route_sure) t.push('route uncertain');
+  if(r._wall) t.push(`<b style="color:var(--ink2)">${r._wall}s total</b>`);
+  const d=[];
+  // 단계 기록이 있으면 그것을 쓴다. 서버가 실제로 재 둔 값이다.
+  if(r.stages && r.stages.length)
+    r.stages.forEach(x=>d.push(`${x.label} ${x.sec.toFixed(1)}s`));
+  else{
+    if(r.t_ctx)          d.push(`Resolving context ${r.t_ctx}s`);
+    if(r.t_trans)        d.push(`Translating question ${r.t_trans}s`);
+    if(r.t_search!=null) d.push(`Searching records ${r.t_search}s`);
+    if(r.t_gen!=null)    d.push(`Generating answer ${r.t_gen}s`);
+    if(r.t_exec!=null)   d.push(`Running SQL ${r.t_exec}s`);
+  }
+  if(d.length) t.push(`<span style="opacity:.85">${d.join(' + ')}</span>`);
+  if(r.k) t.push(`${r.k} sources`);
+  return `<div class="meta">${t.join('')}</div>`;
+}
+
+function vnote(r){
+  // 미검증 문장이 하나도 없는데 "쓰지 말라"고 하면 읽는 쪽이 혼란스럽다.
+  // 실제 결과에 맞는 문구를 쓴다.
+  const bad=r.steps.length-r.verified;
+  if(!r.steps.length) return '';
+  if(bad===0) return 'Every sentence matches the source text character for character.';
+  if(bad===r.steps.length)
+    return 'No sentence could be confirmed against the source records. Do not use as is.';
+  return `${bad} sentence${bad>1?'s':''} could not be confirmed against the source records — do not use those as is.`;
+}
+
+function ctxnote(r){
+  if(!r.resolved) return '';
+  return `<div class="ctxline">Continuing the previous turn, this was read as
+    <b>${esc(r.resolved)}</b>.</div>`;
+}
+
+// 실행된 SQL 에 색을 입힌다. 문자열 리터럴을 먼저 빼 두고 키워드를
+// 칠해야, 문자열 안에 든 단어(예: 'MAIN ENGINE(DIESEL)' 의 ON)가
+// 키워드로 오인되지 않는다.
+const SQL_KW=new RegExp('\\b(' + [
+  'SELECT','FROM','WHERE','GROUP\\s+BY','ORDER\\s+BY','HAVING','JOIN','LEFT',
+  'RIGHT','INNER','OUTER','FULL','CROSS','ON','AND','OR','NOT','IN','AS',
+  'COUNT','SUM','AVG','MIN','MAX','ROUND','DISTINCT','LIMIT','OFFSET','CASE',
+  'WHEN','THEN','ELSE','END','IS','NULL','WITH','UNION','ALL','DESC','ASC',
+  'BETWEEN','LIKE','CAST','EXTRACT','COALESCE','ANY_VALUE','STRFTIME',
+].join('|') + ')\\b', 'gi');
+
+function sqlfmt(q){
+  if(!q) return '';
+  const lits=[];
+  // 홑따옴표 문자열을 자리표시자로 빼 둔다 ('' 로 escape 된 것도 한 덩어리)
+  let t=String(q).replace(/'(?:[^']|'')*'/g, m=>{
+    lits.push(m); return `\u0000${lits.length-1}\u0000`;
+  });
+  t=esc(t);
+  t=t.replace(SQL_KW, m=>`<span class="kw">${m}</span>`);
+  t=t.replace(/\u0000(\d+)\u0000/g, (_,i)=>`<span class="st">${esc(lits[+i])}</span>`);
+  return t;
+}
+
+function render(r){
+  const m=meta(r);
+  if(r.kind==='table'){
+    const one=r.rows.length===1&&r.rows[0].length===1;
+    // 답부터 낸다. 소요 시간과 실행한 질의는 아래 근거 구역으로 내린다.
+    let h=ctxnote(r);
+    // 숫자만 크게 띄우지 않고, 질문에 대응하는 문장으로 먼저 답한다.
+    // 문장 속 수치는 DuckDB 가 낸 값 그대로이며 모델을 거치지 않는다.
+    // 답은 늘 영어가 주다. 병기를 켰을 때만 한국어가 아래에 붙는다.
+    if(r.answer)    h+=`<div class="ansline">${esc(r.answer)}</div>`;
+    if(r.answer_ko) h+=`<div class="ansen">${esc(r.answer_ko)}</div>`;
+    if(one) h+=`<div class="big">${esc(r.rows[0][0])}</div>`;
+    else if(!r.rows.length) h+=`<div class="note warn"><b>No matching records</b></div>`;
+    else{
+      const th=(r.hdr&&r.hdr.length===r.rows[0].length)
+        ? `<thead><tr>${r.hdr.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>` : '';
+      h+=`<div class="tscroll"><table>`+th+`<tbody>`+
+        r.rows.map(row=>'<tr>'+row.map(c=>`<td>${esc(c)}</td>`).join('')+'</tr>').join('')+
+        `</tbody></table></div>`;
+      if(r.total>r.rows.length) h+=`<div class="cite">showing ${r.rows.length} of ${r.total} rows</div>`;
+    }
+    h+=`<div class="evid"><div class="evid-h">How this was produced</div>`+m;
+    if(r.src && r.src.length){
+      h+=`<div class="cite" style="margin-top:10px"><span class="vchip vok">source</span>
+        ${r.src.map(t=>`<b>${esc(t.table)}</b> <span class="org">${esc(t.cols.join(' · '))}</span>`)
+          .join(' &nbsp;/&nbsp; ')}
+        <div class="qt">Computed by reading the tables and columns above from the maintenance database.</div></div>`;
+    }
+    h+=`<div class="qbox"><div class="qhead"><b>Query executed</b>
+          <span>SQL written by the model and run by DuckDB · all ${r.cols} column descriptions supplied</span></div>
+        <div class="qbody">${sqlfmt(r.sql)}</div></div>`;
+    return h+`</div>`;
+  }
+  if(r.kind==='abstain')
+    return ctxnote(r)+`<div class="note warn"><b>${esc(r.head)}</b><div class="why">${esc(r.why)}</div></div>
+      <div class="cite">The model answered <code>${esc(r.token)}</code>. It does not invent a number from data that is not there.</div>`
+      +`<div class="evid"><div class="evid-h">How this was produced</div>`+m+`</div>`;
+  if(r.kind==='sqlerr')
+    return `<div class="note err"><b>The query could not be run</b><div class="why">${esc(r.msg)}</div></div>
+      <details><summary>Show the generated SQL</summary><pre>${esc(r.sql)}</pre></details>`
+      +`<div class="evid"><div class="evid-h">How this was produced</div>`+m+`</div>`;
+  if(r.kind==='proc'){
+    const CTX=ctxnote(r);
+    if(!r.steps.length)
+      return CTX+`<div class="note warn"><b>Not answered — insufficient evidence</b>
+        <div class="why">${esc(r.missing)||'The retrieved records contain nothing that answers this question.'}</div></div>`
+        +`<div class="evid"><div class="evid-h">How this was produced</div>`+m+`</div>`;
+    const pct=Math.round(r.verified/r.steps.length*100);
+    const P={}; (r.prov||[]).forEach(p=>P[p.rec]=p);
+    const origin=rec=>{
+      const p=P[rec]; if(!p) return '';
+      const mn=(p.mach_no!==null&&p.mach_no!==undefined&&p.mach_no!=='')?` no.${p.mach_no}`:'';
+      const en=(p.equip_no!==null&&p.equip_no!==undefined&&p.equip_no!=='')?` no.${p.equip_no}`:'';
+      // 학생 이식판: 참고 기록은 선박 대신 '참고 기록 + 문항ID', 호기는 같은 본문을 쓰는 기록의 호기를 모두
+      if(p.ref){
+        const m0=(p.machs&&p.machs[0])||{name:p.mach, units:p.mach_no};
+        const e0=(p.equips&&p.equips[0])||{name:p.equip, units:p.equip_no};
+        const u=v=>(v===null||v===undefined||v==='')?'':` no.${esc(v)}`;
+        const qs=(p.groups&&p.groups.length)?p.groups.map(g=>g.qid).join(' · '):String(p.doc||'');
+        return ['Reference record '+esc(qs), esc(m0.name||'')+u(m0.units), esc(e0.name||'')+u(e0.units),
+                esc(p.date||'')].filter(Boolean).join(' · ');
+      }
+      return [esc(p.vessel||''), esc(p.mach||'')+mn, esc(p.equip||'')+en,
+              esc(p.date||'')].filter(Boolean).join(' · ');
+    };
+    const tmap = (r.terms&&r.terms.length)
+      ? `<div class="tmap"><span class="th">Terminology applied to the translation</span>`
+        + r.terms.map(t=>`<div class="tr"><span class="tk">${esc(t.ko)}</span>`
+            + `<span class="ar">&rarr;</span><code>${esc(t.en)}</code></div>`).join('')
+        + `<span class="tn">The wording the records actually use is given to the search`
+        + ` so the query matches the corpus vocabulary.</span></div>` : '';
+    const qb = r.query ? `<div class="qbox"><div class="qhead"><b>Search executed</b>
+        <span>BM25 · top ${r.k} · ${(INFO.docs||0).toLocaleString()} records indexed</span></div>
+        <div class="qbody">${esc(r.query)}${r.scores ? `
+<span style="color:var(--ink3)">score  ${r.scores.map((s,i)=>`rec ${i+1} ${s}`).join("   ")}</span>` : ""}</div>${tmap}</div>` : "";
+    return CTX+`<ol class="steps">`+r.steps.map(s=>
+      `<li>${esc(s.text)}
+        ${s.text_ko?`<span class="en">${esc(s.text_ko)}</span>`:''}
+        <div class="cite">
+        <span class="vchip ${s.ok?'vok':'vno'}">${s.ok?'verified':'unverified'}</span>
+        ${s.ok
+          ? `<b>Record ${s.rec}</b> <span class="org">${origin(s.rec)}</span>`
+          : '<span class="org">no match in the source text — this sentence is not in the records</span>'}
+        ${s.quote?`<div class="qt">“${esc(s.quote)}”</div>`:''}
+        </div></li>`).join('')+
+      `</ol><div class="summary">Citations verified ${r.verified}/${r.steps.length} (${pct}%)
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <span style="opacity:.85">${vnote(r)}</span></div>`+
+      (r.missing?`<div class="note warn" style="margin-top:12px"><b>Not covered by the records</b>
+        <div class="why">${esc(r.missing)}</div>
+        <div class="why" style="opacity:.8;margin-top:6px">The part of the question the
+          retrieved records cannot answer. The model states what it could not answer instead
+          of inventing a value — this marks the limit of the answer.</div></div>`:'')+
+      `<div class="evid"><div class="evid-h">How this was produced</div>`+m+qb+
+      `<details open><summary>Sources — which vessel and machinery each record came from</summary>`+
+      provTable(r.prov, r.steps, r.bodies)+`</details></div>`;
+  }
+  if(r.kind==='badfmt')
+    return `<div class="note err"><b>Could not read the output format</b>
+      <div class="why">A second attempt was made but no structured response came back.</div></div>
+      <details><summary>Show the raw output</summary><pre>${esc(r.raw)}</pre></details>`
+      +`<div class="evid"><div class="evid-h">How this was produced</div>`+m+`</div>`;
+  if(r.kind==='norec')
+    return `<div class="note warn"><b>No relevant records found</b></div>`
+      +`<div class="evid"><div class="evid-h">How this was produced</div>`+m+`</div>`;
+  return `<div class="note err"><b>Error</b><div class="why">${esc(r.msg||'')}</div></div>`
+    +`<div class="evid"><div class="evid-h">How this was produced</div>`+m+`</div>`;
+}
+
+$('#q').addEventListener('input',()=>{autosize();toggleSend();});
+$('#q').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send();}});
+$('#burger').onclick=()=>document.body.classList.toggle('collapsed');
+$('#bichk').onchange=e=>{ BI=e.target.checked; saveBI(); };
+loadBI();
+$('#thchk').onchange=e=>{
+  applyTheme(e.target.checked);
+  try{ localStorage.setItem(TH_KEY, e.target.checked?'dark':'light'); }catch(err){}
+};
+loadTheme();
+$('#send').onclick=()=>{ if(busy){ if(ABORT) ABORT(); } else send(); };
+$('#gear1').innerHTML=$('#gear2').innerHTML=IC_GEAR;
+$('#sheetback').onclick=backToSettings;
+// 설정 창 안에서 일어나는 일. 판이 통째로 다시 그려지므로 하나에 모아 둔다.
+$('#sheetbody').addEventListener('click', e=>{
+  if(e.target.closest('#dictopen')) openDict();
+  if(e.target.closest('#seedbtn')){ closeSheet(); seedAll(false); }
+  if(e.target.closest('#seedrest')){ closeSheet(); seedAll(true); }
+});
+$('#sheetbody').addEventListener('input', e=>{
+  if(e.target.id==='dq'){ DICT_Q=e.target.value; paintDict(); }
+});
+$('#gear1').onclick=openSheet;
+$('#gear2').onclick=openSheet;
+$('#sheetx').onclick=closeSheet;
+$('#sheetbg').onclick=e=>{ if(e.target.id==='sheetbg') closeSheet(); };
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && $('#sheetbg').classList.contains('on')) closeSheet();
+});
+$('#newchat').onclick=startNewChat;
+$('#sidebrand').onclick=startNewChat;
+$('#sidebrand').onkeydown=e=>{
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); startNewChat(); }
+};
+
+// ── 사이드바 폭 ─────────────────────────────────────────
+// 화면 크기로 단계를 정해 두었지만 견디는 선은 사람마다 다르다.
+// 직접 끌어 맞추게 하고, 고른 값은 브라우저에 남긴다.
+const SW_KEY='maintqa.sidew', SW_MIN=210, SW_MAX=520;
+
+function setSideW(px){
+  const w=Math.round(Math.min(SW_MAX, Math.max(SW_MIN, px)));
+  document.documentElement.style.setProperty('--sidew', w+'px');
+  return w;
+}
+try{
+  const v=parseInt(localStorage.getItem(SW_KEY)||'', 10);
+  if(v) setSideW(v);
+}catch(e){}
+
+$('#sizer').onpointerdown=e=>{
+  if(document.body.classList.contains('collapsed')) return;
+  e.preventDefault();
+  const x0=e.clientX;
+  const w0=$('#side').getBoundingClientRect().width;
+  document.body.classList.add('sizing');
+  e.target.setPointerCapture(e.pointerId);
+  const move=ev=>setSideW(w0 + (ev.clientX - x0));
+  const up=ev=>{
+    const w=setSideW(w0 + (ev.clientX - x0));
+    document.body.classList.remove('sizing');
+    try{ localStorage.setItem(SW_KEY, String(w)); }catch(err){}
+    e.target.releasePointerCapture(e.pointerId);
+    e.target.removeEventListener('pointermove', move);
+    e.target.removeEventListener('pointerup', up);
+  };
+  e.target.addEventListener('pointermove', move);
+  e.target.addEventListener('pointerup', up);
+};
+// 두 번 누르면 기본 폭으로 되돌린다
+$('#sizer').ondblclick=()=>{
+  document.documentElement.style.removeProperty('--sidew');
+  try{ localStorage.removeItem(SW_KEY); }catch(e){}
+};
+$('#hlist').onclick=e=>{
+  if(e.target.closest('.hedit')) return;      // 고치는 중에는 옮기지 않는다
+  const b=e.target.closest('.hitem');
+  if(b) openSession(b.dataset.s);
+};
+$('#hlist').oncontextmenu=e=>{
+  const b=e.target.closest('.hitem'); if(!b) return;
+  e.preventDefault();
+  openMenu(e.clientX, e.clientY, b.dataset.s);
+};
+$('#hlist').addEventListener('keydown', e=>{
+  if(!e.target.classList.contains('hedit')) return;
+  if(e.key==='Enter'){ e.preventDefault(); commitRename(e.target.value); }
+  if(e.key==='Escape'){ e.preventDefault(); RENAMING=null; paintList(); }
+});
+$('#hlist').addEventListener('focusout', e=>{
+  if(e.target.classList.contains('hedit')) commitRename(e.target.value);
+});
+document.addEventListener('click', e=>{ if(!e.target.closest('.ctxmenu')) closeMenu(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeMenu(); });
+window.addEventListener('blur', closeMenu);
+// 보관된 대화를 되살리고, 주소가 가리키는 대화를 연다.
+(function restore(){
+  const d=load();
+  if(d){
+    const all=d.list.map(x=>({id:x.id, hist:x.hist||[], turns:x.turns,
+                             title:x.title}));
+    const want=idFromURL()||d.cur;
+    SESSIONS=all;
+    CUR=all.find(x=>x.id===want)||all[0];
+  }else{
+    CUR=newSession();
+    SESSIONS=[CUR];
+  }
+  paintSession(); paintList(); pushURL(CUR, true);
+})();
+
+// 뒤로가기·앞으로가기로 대화를 오간다
+window.onpopstate=()=>{
+  const id=idFromURL();
+  if(id===null){ if(CUR.turns.length) startNewChat(); return; }
+  if(id!==CUR.id) openSession(id);
+};
+
+setSend('send');
+boot();
+</script>
+</body>
+</html>

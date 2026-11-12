@@ -1,0 +1,32 @@
+{
+  "evaluated_at": "2026-11-13T00:45:39+09:00",
+  "model": "Qwen3-14B-Q4_K_M",
+  "base_model": "qwen3:14b / 14.8B / Q4_K_M",
+  "context_tokens": 8192,
+  "device": "CPU + Intel Iris Xe (Vulkan)",
+  "gpu_layers": 28,
+  "dataset_scope": "provided student database, 1000 maintenance documents",
+  "aggregate": {
+    "ids": "Q001-Q010",
+    "items": 10,
+    "correct": 7,
+    "incorrect": 3,
+    "errors": 0
+  },
+  "procedural": {
+    "ids": "P001-P005",
+    "count": 5,
+    "steps": 17,
+    "exact": 14,
+    "questions_with_steps": 4,
+    "abstained": 1,
+    "generation_failed": 0,
+    "misrec": 0,
+    "halluc": 3
+  },
+  "selftest_pass": true,
+  "llm_check_pass": true,
+  "full_200_completed": false,
+  "raw_records_included": false,
+  "raw_model_responses_included": false
+}

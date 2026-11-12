@@ -1,0 +1,36 @@
+질문 번역 프롬프트 — 절차형 한국어 질문을 영어로(기록 본문과 검색 색인이 영어라서)
+영어로 물으면 이 단계를 건너뛴다. 사람이 읽는 사본이며 {q} 에 질문, {hints} 에 용어 대응이 들어간다.
+
+==============================================================================
+[A] 웹 화면 — app/maintqa_web.py TRANS_D · max_tokens 200 (용어 대응표 힌트를 함께 준다)
+==============================================================================
+Translate the following Korean question about ship maintenance into English. Output only the translation.
+{hints}
+{q}
+==============================================================================
+{hints} 예시 — app/term_map.py hint_block()
+==============================================================================
+질문: 발전기 과급기 물세척할 때 엔진 부하는 얼마로 두나?
+
+Use these exact equipment names as they appear in the records:
+  발전기 = GENERATOR ENGINE(DIESEL)
+  과급기 = TURBO CHARGER
+
+번역 결과에 대응표의 기록 표기를 덧붙여(snap) 검색어로 쓴다. 대응표는 82항목이며 질문에 나온 말만 넣는다.
+
+==============================================================================
+[B] 터미널판 — app/maintqa_cli.py TRANS_P · max_tokens 200
+==============================================================================
+Translate the following Korean question about ship maintenance into English. Output only the translation.
+
+{q}
+
+==============================================================================
+[C] app/rag.py 단독 실행 — TRANS · max_tokens 120
+==============================================================================
+Translate the following question into English.
+This is about ship engine room maintenance. Use standard marine engineering terms
+as they would appear in a ship's maintenance log written by an engineer.
+Output only the English sentence. No explanation, no quotes.
+
+{q}

@@ -1,0 +1,97 @@
+절차형 답변 프롬프트 — 검색된 정비기록 4건 + 질문 → JSON(steps · missing)
+사람이 읽는 사본이다. 실제로 보내는 글은 ===== 줄 사이의 본문이고, {naming} {ctx} {q} 자리에
+맨 아래 "자리 설명"의 값이 들어간다. 답의 quote 는 인용 검증(원문 문자 대조)의 대상이다.
+
+==============================================================================
+[A] 웹 화면 기본(영어 단계) — app/maintqa_web.py ANSWER_EN · max_tokens 1600
+==============================================================================
+You answer using ONLY the ship maintenance records below.
+
+Output one JSON object. No markdown, no explanation.
+{"steps":[{"step":"one step of the procedure, in English","record":<record number>,"quote":"the exact English sentence from that record, copied character for character"}],
+ "missing":"what the records do not cover, in English"}
+
+Rules:
+- "quote" MUST be copied verbatim from the record. Do not summarise, translate or edit it.
+- If you cannot find a supporting sentence, do not write that step at all.
+- When you state a number (clearance, pressure, time, load), the quote must contain that number.
+- Answer every part of the question that the records DO cover. If a record states a
+  value, write it as a step with its quote. Do not leave out a fact that is present.
+- "missing" is only for what the records genuinely do not contain. Never write a value
+  into "missing" that you could have quoted from a record.
+{naming}
+[RECORDS]
+{ctx}
+
+[QUESTION]
+{q}
+
+[JSON]
+
+==============================================================================
+[B] 웹 화면 "Korean alongside" 를 켰을 때(영·한 병기) — ANSWER_BI · max_tokens 2600
+==============================================================================
+You answer using ONLY the ship maintenance records below.
+
+Output one JSON object. No markdown, no explanation.
+{"steps":[{"step":"one step of the procedure, in English","step_ko":"the same step in Korean","record":<record number>,"quote":"the exact English sentence from that record, copied character for character"}],
+ "missing":"what the records do not cover, in English"}
+
+Rules:
+- "quote" MUST be copied verbatim from the record. Do not summarise, translate or edit it.
+- "step" and "step_ko" must say the same thing in the two languages.
+- Write "missing" in English only. Do not add a Korean version of it.
+- If you cannot find a supporting sentence, do not write that step at all.
+- When you state a number (clearance, pressure, time, load), the quote must contain that number.
+- Answer every part of the question that the records DO cover. If a record states a
+  value, write it as a step with its quote. Do not leave out a fact that is present.
+- "missing" is only for what the records genuinely do not contain. Never write a value
+  into "missing" that you could have quoted from a record.
+{naming}
+[RECORDS]
+{ctx}
+
+[QUESTION]
+{q}
+
+[JSON]
+
+==============================================================================
+[C] 평가기·터미널판(한국어 단계) — app/rag.py ANSWER = eval/prompts/proc_answer_template.txt · max_tokens 2200
+==============================================================================
+You answer using ONLY the ship maintenance records below.
+
+Output one JSON object. No markdown, no explanation.
+{"steps":[{"step":"one step of the procedure, in Korean","record":<record number>,"quote":"the exact English sentence from that record, copied character for character"}],
+ "missing":"what the records do not cover; empty string if nothing"}
+
+Rules:
+- "quote" MUST be copied verbatim from the record. Do not summarise, translate or edit it.
+- If you cannot find a supporting sentence, do not write that step at all.
+- When you state a number (clearance, pressure, time, load), the quote must contain that number.
+
+[RECORDS]
+{ctx}
+
+[QUESTION]
+{q}
+
+[JSON]
+
+==============================================================================
+자리 설명
+==============================================================================
+{q}      영어 질문. 한국어로 물으면 03_질문번역.txt 의 번역 결과가 들어간다.
+
+{ctx}    BM25 로 찾은 기록 4건. 웹 화면([A][B])은 다음 형식이다.
+         Record 1. Title: <제목>\nMachine: <기기명> / <장비명>\nDate: <작업일>\n<본문>
+         평가기·터미널판([C])은 원 실험(proc_run.py) 형식이다.
+         Record 1. Title: <제목>\nMachine: <기기명> / Equipment: <장비명> / Date: <작업일>\nContent: <본문>
+         기록 사이는 빈 줄 하나다.
+
+{naming} 질문에 나온 설비 이름을 기록이 어떻게 적는지 알려 주는 문단(웹 화면만). 해당 없으면 빈 줄.
+         예(질문: "발전기 과급기 물세척할 때 엔진 부하는 얼마로 두나?")
+         [EQUIPMENT NAMING]
+         - "발전기" is written as "GENERATOR ENGINE(DIESEL)" in these records.
+         - "과급기" is written as "TURBO CHARGER" in these records.
+         These refer to the same equipment. Do not treat the different wording as a gap in the records.

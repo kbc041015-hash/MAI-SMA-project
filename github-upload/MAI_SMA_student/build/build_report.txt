@@ -1,0 +1,20 @@
+MAI SMA 학생 이식 패키지 v2(정비 문서 1,000건 DB) — 빌드 점검 (2026-11-10)
+
+[PASS] prompts/01 = 키트 cond_F.txt (글자까지 같음) — 13,965자
+[PASS] app 이 만드는 조건 F 프롬프트 = 키트 cond_F.txt (1,000건 DB 에서 만든 DDL 도 같다)
+[PASS] app rag.ANSWER = 키트 절차형 템플릿(proc_answer_template.txt)
+[PASS] 학생용 DB — 테이블 행 수 · 표본 1,000건(정비 데이터 6개 표 + 고정 문맥) 내용 지문 = 초판(2026-11-10) — approval 2,979 · attachments 286 · consumption 174 · master 1,000 · pms 2,296 · prompt_templates 5 · qa_aggregate 100 · qa_procedural 100 · qa_proc_context 400 · vessels 6 · _readme 10 · 데이터 지문 c48d1c7f944d
+[PASS] 학생용 DB — 전체 내용 지문 = v2.1 기준값(qa 표 수정판: 질문 원 문안 · keep 미판정 · NULL 표기 · 조건 F 설명) — 지문 a2dbf34b303f
+[PASS] data/ 와 eval/db/ 의 DB = 같은 파일(바이트 동일)
+[PASS] eval/ 구성 = 1,000건 DB 기준 평가 세트(키트 파일 그대로 + 고친 평가기 + 이 DB 정답 · 키트 엑셀 없음) — 218개 파일 · 키트와 바이트 동일 209/209
+[PASS] eval/run_eval.py 채점·호출 함수 = 키트판(글자까지 같음) — 21개 함수 · chat 은 그대로 두고 모델 id 를 파일 이름만 남기는 덮개(_chat_student)로 감쌌다
+[PASS] eval/questions/aggregate100.jsonl 정답 = 1,000건 DB 기준(qa_aggregate.answer_json, 글자 그대로) — 17만 행 기준 정답 없음 — 100/100 일치 · JSON null 표기 0개(0 이어야 — NULL 은 "NULL") · 전체 DB 정답과 다른 문항 88개
+[PASS] app/answer_text.py = DemoTool 원본(바이트 동일)
+[PASS] app/term_map.py = DemoTool 원본(바이트 동일)
+[PASS] 색인 bm25_1000.pkl = 정비 문서 기록(서술 300자 이상) + 참고 기록(본문 중복 제거) — N=1,046 = 정비 문서 741(기대 741) + 참고 305(기대 305) · 어휘 4,030
+[PASS] 예시 질문(data/demo_questions.txt) = DB 정답·문항과 맞음 · 퓨샷 예시와 다름 — 16개(집계 7 · 기권 2 · 절차 5 대조)
+[PASS] 금지 파일 없음(실제·시연·키트 DB, 실제·키트 색인, 열쇠·대응표, 키트 정답 엑셀, 모델·실행 파일, __pycache__, 기록) — 0개
+[PASS] tools/selftest.py 전 항목 PASS — 결과: 75/75 PASS · 참고 1 · 23초
+[PASS] 비밀 검사 — 패키지 폴더(작업본) — 파일 262개 · 발견 0건
+
+결과: 16/16 PASS

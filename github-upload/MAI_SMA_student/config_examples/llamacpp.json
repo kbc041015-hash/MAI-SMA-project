@@ -1,0 +1,19 @@
+{
+  "preset": "llamacpp",
+  "base_url": "http://127.0.0.1:8080/v1",
+  "model": "",
+  "api_key": "",
+  "context_tokens": 8192,
+  "timeout_sec": 600,
+  "web_port": 8780,
+  "warmup": true,
+  "extra_body": {},
+  "gguf_path": "",
+  "allow_remote": false,
+  "llama_server": {
+    "exe": "",
+    "model_path": "",
+    "ngl": 99,
+    "extra_args": ["--cache-reuse", "256", "-np", "1"]
+  }
+}
