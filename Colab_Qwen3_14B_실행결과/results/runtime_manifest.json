@@ -1,0 +1,99 @@
+{
+  "created_utc": "2026-11-15T16:54:13.806124+00:00",
+  "backend": "ollama",
+  "gpu": "Tesla T4, 15360, 14913",
+  "context_tokens": 8192,
+  "colab_gpu_execution_verified": true,
+  "ollama_installer_sha256": "25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f",
+  "packages": {
+    "requests": "2.32.4",
+    "duckdb": "1.5.6",
+    "openpyxl": "3.1.5",
+    "psutil": "7.2.2"
+  },
+  "ollama_version": "0.40.16",
+  "model": "mai-sma-qwen3-14b:latest",
+  "base_model": "qwen3:14b",
+  "details": {
+    "parent_model": "",
+    "format": "gguf",
+    "family": "qwen3",
+    "families": [
+      "qwen3"
+    ],
+    "parameter_size": "14.8B",
+    "quantization_level": "Q4_K_M"
+  },
+  "model_digest": "e78b2e243b4cee63e288af841277afb996147b663bf7be3fdbb8fdead24df73f",
+  "running_model": {
+    "name": "mai-sma-qwen3-14b:latest",
+    "model": "mai-sma-qwen3-14b:latest",
+    "size": 10489430015,
+    "digest": "e78b2e243b4cee63e288af841277afb996147b663bf7be3fdbb8fdead24df73f",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen3",
+      "families": [
+        "qwen3"
+      ],
+      "parameter_size": "14.8B",
+      "quantization_level": "Q4_K_M"
+    },
+    "expires_at": "2026-11-15T17:29:15.452342049Z",
+    "size_vram": 10489430015,
+    "context_length": 8192,
+    "runner": "llamacpp"
+  },
+  "input_archive_sha256": "fc18ba93718529e6ab3040455a18a09db72d0acc2386bcf25f46bc4b6b45677c",
+  "course_config": {
+    "preset": "ollama",
+    "base_url": "http://127.0.0.1:11435/v1",
+    "model": "mai-sma-qwen3-14b:latest",
+    "api_key": "",
+    "context_tokens": 8192,
+    "timeout_sec": 1200,
+    "web_port": 8780,
+    "warmup": false,
+    "allow_remote": false,
+    "seed": 42,
+    "temperature": 0,
+    "extra_body": {
+      "reasoning_effort": "none"
+    }
+  },
+  "app_info": {
+    "app": "MAI_SMA_student",
+    "version": "v2 (2026-11-10, 정비 문서 1,000건 DB)",
+    "model": "mai-sma-qwen3-14b:latest",
+    "model_file": "",
+    "quant": "",
+    "quant_text": "",
+    "preset": "ollama",
+    "base_url": "http://127.0.0.1:11435/v1",
+    "remote": false,
+    "demo": true,
+    "db": "MAI_SMA_학생용DB_1000.duckdb",
+    "docs": 1046,
+    "docs_ref": 305,
+    "ready": true,
+    "samples": [
+      "주기관 정비를 호기별로 세어줘",
+      "배마다 정비 기록이 몇 건씩이야?",
+      "VESSEL-C의 중요 정비 작업이 몇 건이야?",
+      "D/G 정비 기록이 서로 다른 게 몇 건이야?",
+      "부품 쓴 기록이 있는 정비가 전체의 몇 퍼센트야? 소수 둘째 자리까지",
+      "첨부 파일을 확장자별로 세어서 많은 순 다섯 개 보여줘",
+      "Count the main engine maintenance lines by unit number",
+      "정비 한 건에 평균 몇 명이나 투입돼?",
+      "VESSEL-E에서 2026년에 갈아 끼운 부품 목록 전부 보여줘",
+      "If we have to close the windlass brake by hand with the handwheel, what has to be secured first and how is the connection pin fitted to the handle?",
+      "Does the pressure for the mooring winch remote operating stand come from a dedicated pump, or is it taken from the deck machinery pump through a pressure reducing valve? What is the set pressure?",
+      "What tolerance is allowed between the bottom-tracking speed on the doppler log and the GPS speed over ground, and at what water depth is the comparison taken?",
+      "보일러 노 내화재에 실금 같은 게 보이는데 바로 보수해야 하나? 심각해졌다는 판단은 뭘로 하나?",
+      "시동공기 압축기를 열어보니 카본이 끼고 시트면이 거칠고 미세한 부식이 보인다. 부품을 갈아야 하나 손질해서 재사용하나? 조립할 때 조임 토크는 얼마인가?",
+      "What torque is the large bowl lock nut tightened to when assembling the purifier?",
+      "발전기 과급기 물세척할 때 엔진 부하와 터빈 입구 온도는 얼마로 유지해야 하나?"
+    ]
+  }
+}

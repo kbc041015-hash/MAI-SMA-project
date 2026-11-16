@@ -1,0 +1,169 @@
+{
+  "recorded_at": "2026-11-16T02:16:23.773946+09:00",
+  "editor": "Visual Studio Code",
+  "connector": "Google Colab extension",
+  "backend": "Ollama",
+  "ollama_version": "0.40.16",
+  "gpu": "Tesla T4",
+  "model": "qwen3:14b",
+  "model_alias": "mai-sma-qwen3-14b:latest",
+  "parameter_size": "14.8B",
+  "quantization": "Q4_K_M",
+  "model_digest": "e78b2e243b4cee63e288af841277afb996147b663bf7be3fdbb8fdead24df73f",
+  "context_tokens": 8192,
+  "gpu_inference_verified": true,
+  "supplied_class_data_uploaded": true,
+  "input_archive_sha256": "fc18ba93718529e6ab3040455a18a09db72d0acc2386bcf25f46bc4b6b45677c",
+  "selftest": {
+    "passed": 76,
+    "total": 76
+  },
+  "connection_check_pass": true,
+  "sample_15_evaluation_completed": true,
+  "full_200_evaluation_completed": false,
+  "aggregate": {
+    "task": "agg",
+    "items": 10,
+    "strict": 7,
+    "norm": 7,
+    "strict_pct": 70.0,
+    "norm_pct": 70.0,
+    "by_difficulty": {
+      "easy": {
+        "strict": 7,
+        "norm": 7,
+        "total": 10
+      },
+      "medium": {
+        "strict": 0,
+        "norm": 0,
+        "total": 0
+      },
+      "hard": {
+        "strict": 0,
+        "norm": 0,
+        "total": 0
+      }
+    },
+    "abstain_ok": 0,
+    "abstain_total": 0,
+    "over_abstain": 0,
+    "exec_error": 0,
+    "api_error": 0,
+    "dialect_recovered": 0,
+    "compare": {
+      "items": 10,
+      "excluded": 0,
+      "excluded_ids": [],
+      "strict": 7,
+      "norm": 7
+    },
+    "by_rule": {},
+    "timing": {
+      "n": 10,
+      "mean": 1.03,
+      "median": 1.0,
+      "max": 1.43,
+      "total_min": 0.2
+    },
+    "tokens": {
+      "prompt": 78894,
+      "completion": 178,
+      "n": 10
+    },
+    "combo": {
+      "task": "agg",
+      "cond": "F",
+      "phrasing": "NL",
+      "variant": "kit"
+    }
+  },
+  "procedural": {
+    "task": "proc",
+    "items": 5,
+    "steps": 17,
+    "exact": 17,
+    "misrec": 0,
+    "halluc": 0,
+    "num_ok": 5,
+    "num_all": 5,
+    "legacy_parsed": 4,
+    "json_valid": 5,
+    "step_yield": 4,
+    "abstain": 1,
+    "gen_fail": 0,
+    "legacy_refuse": 1,
+    "lack_raw": 1,
+    "lack": 1,
+    "api_error": 0,
+    "exact_pct": 100.0,
+    "misrec_pct": 0.0,
+    "halluc_pct": 0.0,
+    "anywhere": 17,
+    "anywhere_pct": 100.0,
+    "by_kind": {
+      "절차": {
+        "total": 2,
+        "steps": 6,
+        "exact": 6,
+        "step_yield": 2,
+        "abstain": 0,
+        "gen_fail": 0
+      },
+      "판정기준": {
+        "total": 1,
+        "steps": 0,
+        "exact": 0,
+        "step_yield": 0,
+        "abstain": 1,
+        "gen_fail": 0
+      },
+      "이상소견": {
+        "total": 1,
+        "steps": 8,
+        "exact": 8,
+        "step_yield": 1,
+        "abstain": 0,
+        "gen_fail": 0
+      },
+      "부품": {
+        "total": 1,
+        "steps": 3,
+        "exact": 3,
+        "step_yield": 1,
+        "abstain": 0,
+        "gen_fail": 0
+      }
+    },
+    "timing": {
+      "n": 5,
+      "mean": 12.78,
+      "median": 13.51,
+      "max": 22.46,
+      "total_min": 1.1
+    },
+    "tokens": {
+      "prompt": 6948,
+      "completion": 1033,
+      "n": 5
+    },
+    "input_hash": "d9ce1ba97f6b4578",
+    "combo": {
+      "task": "proc",
+      "cond": "PROC",
+      "phrasing": "en",
+      "variant": "kit"
+    }
+  },
+  "workbook_responses_verified": 15,
+  "result_archive_sha256": "a65df8be6360c420e3d4d1b5c8a440c7816ea0663fee7734e5219dbd0d12e4bd",
+  "evaluation_dates_as_recorded": [
+    "2026-11-15"
+  ],
+  "limitations": [
+    "Only 10 aggregate questions and 5 procedural questions were evaluated.",
+    "Exact citation matching does not establish the semantic correctness of every procedure.",
+    "The aggregate prefix was warmed by a prior real app question; these are not cold-start timings.",
+    "Raw records, responses, and the workbook are excluded from the GitHub numeric report."
+  ]
+}

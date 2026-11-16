@@ -1,0 +1,57 @@
+{
+ "task": "agg",
+ "items": 10,
+ "strict": 7,
+ "norm": 7,
+ "strict_pct": 70.0,
+ "norm_pct": 70.0,
+ "by_difficulty": {
+  "easy": {
+   "strict": 7,
+   "norm": 7,
+   "total": 10
+  },
+  "medium": {
+   "strict": 0,
+   "norm": 0,
+   "total": 0
+  },
+  "hard": {
+   "strict": 0,
+   "norm": 0,
+   "total": 0
+  }
+ },
+ "abstain_ok": 0,
+ "abstain_total": 0,
+ "over_abstain": 0,
+ "exec_error": 0,
+ "api_error": 0,
+ "dialect_recovered": 0,
+ "compare": {
+  "items": 10,
+  "excluded": 0,
+  "excluded_ids": [],
+  "strict": 7,
+  "norm": 7
+ },
+ "by_rule": {},
+ "timing": {
+  "n": 10,
+  "mean": 1.03,
+  "median": 1.0,
+  "max": 1.43,
+  "total_min": 0.2
+ },
+ "tokens": {
+  "prompt": 78894,
+  "completion": 178,
+  "n": 10
+ },
+ "combo": {
+  "task": "agg",
+  "cond": "F",
+  "phrasing": "NL",
+  "variant": "kit"
+ }
+}

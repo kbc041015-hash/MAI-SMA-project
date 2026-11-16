@@ -1,0 +1,316 @@
+{
+ "tag": "ollama_colab_e78b2e24_proc",
+ "input_hash": "d9ce1ba97f6b4578",
+ "results": [
+  {
+   "id": 1,
+   "pid": "P001",
+   "ko": "주기관 과급기가 오염돼서 운항 중에 세정하려고 하는데, 물 세정이랑 호두껍질 건식 세정에 각각 얼마씩 넣고 엔진 부하는 몇 %에 두고 해야 하나?",
+   "en": "Our main engine turbocharger is getting fouled and we want to run a wash under way - how much water goes in for the wet wash, how much walnut shell for the dry blast, and what engine load range is allowed for each?",
+   "kind": "절차",
+   "category": "(1차)",
+   "gold_n": 92,
+   "parsed": true,
+   "n_steps": 4,
+   "rows": [
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": true,
+     "num_ok": true,
+     "step": "웨트 세척 시 사용되는 물의 양은 3.0 L입니다.",
+     "quote": "Volume of water per cleaning process : 3.0 L",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 658,
+     "nums": [
+      "3.0"
+     ],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": true,
+     "num_ok": true,
+     "step": "드라이 블라스트 시 사용되는 월넛 캐시의 양은 2.0 L입니다.",
+     "quote": "Amount of granulate : 2.0 L",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 305,
+     "nums": [
+      "2.0"
+     ],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": true,
+     "num_ok": true,
+     "step": "웨트 세척 시 허용되는 엔진 부하 범위는 25 ~ 85%입니다.",
+     "quote": "T/C Wet cleaning for turbine side should be conducted at engine load of 25 ~ 85%.",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 530,
+     "nums": [
+      "85%"
+     ],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": true,
+     "num_ok": true,
+     "step": "드라이 세척 시 허용되는 엔진 부하 범위는 5 ~ 85%입니다.",
+     "quote": "T/C Dry cleaning for turbine side should be conducted at engine load of 5 ~ 85%.",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 156,
+     "nums": [
+      "85%"
+     ],
+     "nums_missing": []
+    }
+   ],
+   "missing": "",
+   "sec": 13.88,
+   "raw": "{\"steps\":[{\"step\":\"웨트 세척 시 사용되는 물의 양은 3.0 L입니다.\",\"record\":1,\"quote\":\"Volume of water per cleaning process : 3.0 L\"},{\"step\":\"드라이 블라스트 시 사용되는 월넛 캐시의 양은 2.0 L입니다.\",\"record\":1,\"quote\":\"Amount of granulate : 2.0 L\"},{\"step\":\"웨트 세척 시 허용되는 엔진 부하 범위는 25 ~ 85%입니다.\",\"record\":1,\"quote\":\"T/C Wet cleaning for turbine side should be conducted at engine load of 25 ~ 85%.\"},{\"step\":\"드라이 세척 시 허용되는 엔진 부하 범위는 5 ~ 85%입니다.\",\"record\":1,\"quote\":\"T/C Dry cleaning for turbine side should be conducted at engine load of 5 ~ 85%.\"}],\"missing\":\"\"}"
+  },
+  {
+   "id": 2,
+   "pid": "P002",
+   "ko": "주기관 추력 베어링 쪽 크랭크축 앞뒤 놀음은 몇 mm까지가 정상이고 마모 한계는 얼마인가? 그리고 어디와 어디 사이를 재는 건가?",
+   "en": "On the main engine, how much fore-and-aft play of the crankshaft at the thrust block is still normal, what is the wear limit, and between which two parts is the gap taken?",
+   "kind": "판정기준",
+   "category": "(1차)",
+   "gold_n": 6,
+   "parsed": false,
+   "n_steps": 0,
+   "rows": [],
+   "missing": "The records do not cover the fore-and-aft play of the crankshaft at the thrust block, the wear limit, or the gap between two parts.",
+   "sec": 4.32,
+   "raw": "{\"steps\":[],\"missing\":\"The records do not cover the fore-and-aft play of the crankshaft at the thrust block, the wear limit, or the gap between two parts.\"}"
+  },
+  {
+   "id": 3,
+   "pid": "P003",
+   "ko": "주기관 연료 인젝터가 고착되고 노즐이 막혀서 계속 말썽인데, 예전에는 어떻게 처리했고 교체하고 나서 뭘 확인했나?",
+   "en": "The main engine fuel injectors keep giving trouble with sticking and clogged nozzles - how was this handled before, and what was checked after they were changed out?",
+   "kind": "이상소견",
+   "category": "(1차)",
+   "gold_n": 19,
+   "parsed": true,
+   "n_steps": 8,
+   "rows": [
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "주요 연료 인젝터가 막혀 있었기 때문에 MFI를 교체했습니다.",
+     "quote": "1)Main fuel injectors of No.1 ME #4 Cylinder clogged therefore renewed the MFI.",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 12,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "인젝터를 교체하기 전에 연료 공급 밸브를 닫고 연료 라인에 압력이 없는지 확인했습니다.",
+     "quote": "3) Close the fuel supply valve. Confirmed that there is no pressure in the fuel line",
+     "claimed_rec": 2,
+     "matched_rec": 2,
+     "match_pos": 150,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "인젝터의 누수 여부와 노즐의 적절한 분사 상태를 확인하기 위해 압력 테스트를 수행했습니다.",
+     "quote": "4) To pressure test the injectors, check for any leaks and proper atomization of the nozzle",
+     "claimed_rec": 2,
+     "matched_rec": 2,
+     "match_pos": 235,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "인젝터의 분사 압력을 조정하거나 필요시 노즐을 교체했습니다.",
+     "quote": "5) To adjust for the right atomization pressure or change the nozzle if needed",
+     "claimed_rec": 2,
+     "matched_rec": 2,
+     "match_pos": 327,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "FIV를 분해하고 청소한 후 모든 O-RING을 교체했습니다.",
+     "quote": "6) To disassemble and clean FIV, change all o-rings.",
+     "claimed_rec": 2,
+     "matched_rec": 2,
+     "match_pos": 406,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "FIV의 조립 및 설치 시 적절한 토크를 적용했습니다.",
+     "quote": "7) To observed proper torque in tightening and installation of FIV.",
+     "claimed_rec": 2,
+     "matched_rec": 2,
+     "match_pos": 459,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "노즐 교체 후 엔진 성능을 테스트했습니다.",
+     "quote": "1) To test the performance of the engine after pressure adjustment/ installation of the new nozzle of FIV",
+     "claimed_rec": 2,
+     "matched_rec": 2,
+     "match_pos": 541,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "운전 상태에서 누수 여부를 확인했습니다.",
+     "quote": "2) To check for any leaks during running condition",
+     "claimed_rec": 2,
+     "matched_rec": 2,
+     "match_pos": 647,
+     "nums": [],
+     "nums_missing": []
+    }
+   ],
+   "missing": "",
+   "sec": 22.46,
+   "raw": "{\"steps\":[{\"step\":\"주요 연료 인젝터가 막혀 있었기 때문에 MFI를 교체했습니다.\",\"record\":1,\"quote\":\"1)Main fuel injectors of No.1 ME #4 Cylinder clogged therefore renewed the MFI.\"},{\"step\":\"인젝터를 교체하기 전에 연료 공급 밸브를 닫고 연료 라인에 압력이 없는지 확인했습니다.\",\"record\":2,\"quote\":\"3) Close the fuel supply valve. Confirmed that there is no pressure in the fuel line\"},{\"step\":\"인젝터의 누수 여부와 노즐의 적절한 분사 상태를 확인하기 위해 압력 테스트를 수행했습니다.\",\"record\":2,\"quote\":\"4) To pressure test the injectors, check for any leaks and proper atomization of the nozzle\"},{\"step\":\"인젝터의 분사 압력을 조정하거나 필요시 노즐을 교체했습니다.\",\"record\":2,\"quote\":\"5) To adjust for the right atomization pressure or change the nozzle if needed\"},{\"step\":\"FIV를 분해하고 청소한 후 모든 O-RING을 교체했습니다.\",\"record\":2,\"quote\":\"6) To disassemble and clean FIV, change all o-rings.\"},{\"step\":\"FIV의 조립 및 설치 시 적절한 토크를 적용했습니다.\",\"record\":2,\"quote\":\"7) To observed proper torque in tightening and installation of FIV.\"},{\"step\":\"노즐 교체 후 엔진 성능을 테스트했습니다.\",\"record\":2,\"quote\":\"1) To test the performance of the engine after pressure adjustment/ installation of the new nozzle of FIV\"},{\"step\":\"운전 상태에서 누수 여부를 확인했습니다.\",\"record\":2,\"quote\":\"2) To check for any leaks during running condition\"}],\"missing\":\"\"}"
+  },
+  {
+   "id": 4,
+   "pid": "P004",
+   "ko": "주기관 과급기 흡기 여과기가 두 겹으로 들어가 있던데, 어느 쪽이 세척해서 다시 쓰는 거고 어느 쪽이 소모품인가? 언제 세척하고 언제 새것으로 가나?",
+   "en": "The main engine turbocharger intake filter seems to be fitted in two layers - which layer is the washable one that gets reused and which one is the consumable, and what reading tells us when to wash or renew them?",
+   "kind": "부품",
+   "category": "(1차)",
+   "gold_n": 39,
+   "parsed": true,
+   "n_steps": 3,
+   "rows": [
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "필터는 2층으로 사용되며, 첫 번째 층 필터는 세척 가능한 필터로 재사용되며, 두 번째 층은 교체 가능한 공기 필터(10T)로 저장되어 있습니다.",
+     "quote": "2) T/C Filter is using in 2 layers, first layer filter is washable filter as spare, second is replaceable air filter(10T) as store.",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 61,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "두 번째 필터는 더럽혀지거나 고차압 차이가 발생할 때 교체해야 합니다.",
+     "quote": "3) Second filter is replacing when it goes to dirty or high diff. pressure.",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 193,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": true,
+     "num_ok": true,
+     "step": "만약 맨로미터 값이 200mmAq에 도달하면, 첫 번째 층 필터는 제조사 지침에 따라 세척해야 합니다.",
+     "quote": "4) If manometer value reach to 200mmAq, first layer filter should be clean as following maker instruction.",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 269,
+     "nums": [
+      "200mm"
+     ],
+     "nums_missing": []
+    }
+   ],
+   "missing": "",
+   "sec": 13.51,
+   "raw": "{\"steps\":[{\"step\":\"필터는 2층으로 사용되며, 첫 번째 층 필터는 세척 가능한 필터로 재사용되며, 두 번째 층은 교체 가능한 공기 필터(10T)로 저장되어 있습니다.\",\"record\":\"1\",\"quote\":\"2) T/C Filter is using in 2 layers, first layer filter is washable filter as spare, second is replaceable air filter(10T) as store.\"},{\"step\":\"두 번째 필터는 더럽혀지거나 고차압 차이가 발생할 때 교체해야 합니다.\",\"record\":\"1\",\"quote\":\"3) Second filter is replacing when it goes to dirty or high diff. pressure.\"},{\"step\":\"만약 맨로미터 값이 200mmAq에 도달하면, 첫 번째 층 필터는 제조사 지침에 따라 세척해야 합니다.\",\"record\":\"1\",\"quote\":\"4) If manometer value reach to 200mmAq, first layer filter should be clean as following maker instruction.\"}],\"missing\":\"\"}"
+  },
+  {
+   "id": 5,
+   "pid": "P005",
+   "ko": "크로스헤드 가이드 부 틈새를 필러 게이지로 잴 때 엔진을 크랭크 각도 어디에 세워놓고, 어느 지점들을 재나? 작업 전 격리는 뭘 해야 하나?",
+   "en": "When checking the crosshead guide gaps with a feeler gauge, at what crank angle should the engine be stopped, which points are gauged, and what has to be isolated beforehand?",
+   "kind": "절차",
+   "category": "(1차)",
+   "gold_n": 13,
+   "parsed": true,
+   "n_steps": 2,
+   "rows": [
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "검사 전에 크로스헤드 윤활유 펌프와 메인 윤활유 펌프를 정지시켜야 한다.",
+     "quote": "Before the inspection, stop the crosshead lubricating oil pump and main lubricating oil pump for M/E.",
+     "claimed_rec": 1,
+     "matched_rec": 1,
+     "match_pos": 3,
+     "nums": [],
+     "nums_missing": []
+    },
+    {
+     "exact": true,
+     "anywhere": true,
+     "has_num": false,
+     "num_ok": null,
+     "step": "엔진을 후진 방향으로 회전하여 BDC 직전 30 ~ 60도 위치에 정지시켜야 한다.",
+     "quote": "Turned the engine in astern direction to an approximate to 30 ~ 60 degrees before BDC. (Position 1)",
+     "claimed_rec": 3,
+     "matched_rec": 3,
+     "match_pos": 104,
+     "nums": [],
+     "nums_missing": []
+    }
+   ],
+   "missing": "",
+   "sec": 9.72,
+   "raw": "{\"steps\":[{\"step\":\"검사 전에 크로스헤드 윤활유 펌프와 메인 윤활유 펌프를 정지시켜야 한다.\",\"record\":\"1\",\"quote\":\"Before the inspection, stop the crosshead lubricating oil pump and main lubricating oil pump for M/E.\"},{\"step\":\"엔진을 후진 방향으로 회전하여 BDC 직전 30 ~ 60도 위치에 정지시켜야 한다.\",\"record\":\"3\",\"quote\":\"Turned the engine in astern direction to an approximate to 30 ~ 60 degrees before BDC. (Position 1)\"}],\"missing\":\"\"}"
+  }
+ ]
+}

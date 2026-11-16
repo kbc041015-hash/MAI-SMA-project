@@ -1,0 +1,94 @@
+MAI SMA 학생 이식 패키지 — 자체 점검 (python 3.13.16)
+
+■ A. 패키지 구성과 데이터
+[PASS] 필수 파일  — 55/55
+[PASS] 파이썬 3.10 이상  — 3.13.16 · /usr/bin/python3
+[PASS] duckdb 1.5 이상 2 미만(requirements.txt 의 범위)  — duckdb 1.5.6 — 맞는 판입니다(1.5 이상 2 미만)
+[PASS] 학생용 DB 테이블 행 수(정비 문서 1,000건 + 집계형 100 · 절차형 100 · 고정 문맥 400 — 17만 행 DB 아님)  — master 1,000 · pms 2,296 · consumption 174 · attachments 286 · approval 2,979 · vessels 6 · qa_aggregate 100 · qa_procedural 100 · qa_proc_context 400 · prompt_templates 5
+[PASS] 예시 질문의 정답 SQL = DB 의 qa_aggregate(Q090 주기관 · Q089 발전기 호기별)  — 주기관 [['1', '122'], ['2', '125']] · 발전기 [['1', '63'], ['2', '62'], ['3', '69']]
+[PASS] DB 읽기 전용  — 쓰기 거부
+[PASS] 모델 SQL 의 외부 파일 접근 차단  — PermissionException
+[PASS] EQUIP_TAG 16자리 복합코드(기기 5 + 호기 3 + 장비 5 + 호기 3)  — pms 2,296행
+[PASS] data/ 와 eval/db/ 의 DB 가 같은 파일
+[PASS] 검색 색인 = 정비 문서 기록(서술 300자 이상) + 참고 기록(qa_proc_context, 본문 중복 제거)  — N=1,046 = 정비 문서 741 + 참고 305 · 어휘 4,030
+[PASS] 색인 = DB 에서 다시 만든 것(tools/rebuild_index.py --check)  — 색인 점검: 같음 — 기록 1,046건(정비 문서 741 + 참고 305) · 어휘 4,030종 · 0.2초
+[PASS] 데이터 사전(비식별판) 항목  — 123개 컬럼
+[PASS] 예시 질문 — 화면 카드가 고르는 네 문항(기권 · 집계 · 절차 · 판정 기준)이 들어 있음  — 16개
+[PASS] 설비 용어 대응표 82항목  — 82항목
+
+■ B. 프롬프트 — 평가기와 같은 글
+[PASS] 집계형 프롬프트(조건 F) = eval/prompts/cond_F.txt  — 13,965자 · 컬럼 설명 123개
+[PASS] prompts/01 = 실제로 보내는 집계형 전문
+[PASS] 절차형 템플릿(rag.ANSWER) = eval/prompts/proc_answer_template.txt
+[PASS] 평가기 붙여넣기 프롬프트 Q001 = 웹 화면이 같은 질문에 보내는 글
+[PASS] prompts/02~05 사본 = 코드의 프롬프트  — 프롬프트 사본: 코드와 같음
+
+■ C. 설정 파일과 요청 프리셋(llm_client)
+[PASS] config.json 읽기·검사  — Ollama · http://127.0.0.1:11435/v1 · 모델 mai-sma-qwen3-14b:latest
+[PASS] 설정 예시 4종(JSON · preset · 기본 주소 · 설정 이름)  — ollama=ollama@http://localhost:11434/v1 · lmstudio=lmstudio@http://localhost:1234/v1 · llamacpp=llamacpp@http://127.0.0.1:8080/v1 · openai_compatible=openai@http://127.0.0.1:8000/v1
+[PASS] config.json 설정 이름(오타 없음)
+[PASS] llamacpp 프리셋 = 원 시연판 요청 본문  — {"temperature": 0, "top_k": 1, "seed": 42, "max_tokens": 600, "chat_template_kwargs": {"enable_thinking": false}}
+[PASS] ollama 프리셋: model 포함 · top_k·chat_template_kwargs 없음 · seed 42  — {"model": "m", "temperature": 0, "seed": 42, "max_tokens": 600}
+[PASS] lmstudio 프리셋: top_k 1 · seed 42 · chat_template_kwargs 없음
+[PASS] openai 프리셋: 표준 필드만(model · messages · temperature · max_tokens)
+[PASS] api.openai.com → max_completion_tokens
+[PASS] 설정으로 seed·temperature 빼기 · extra_body 더하기
+[PASS] base_url 정리(/v1 보충 · 끝 경로 제거)  — ['http://127.0.0.1:8080/v1', 'http://localhost:11434/v1', 'http://localhost:1234/v1', 'http://127.0.0.1:8080/v1']
+[PASS] 외부 주소 판별(이 PC·사내망만 허용)  — [True, True, True, True, False, False]
+[PASS] 외부 주소는 allow_remote 없이 거부
+[PASS] JSON 오류를 줄·칸과 함께 알림  — config.json 을 JSON 으로 읽지 못했습니다(줄 1, 칸 34): Illegal trailing comma before end of 
+[PASS] 경로 역슬래시(Invalid \escape) → / 로 적으라고 안내  — config.json 을 JSON 으로 읽지 못했습니다(줄 1, 칸 53): Invalid \escape
+[PASS] UTF-8(BOM) 으로 저장한 config.json 읽기
+[PASS] 사고(thinking) 덩어리 걷어 내기
+[PASS] 모델 이름 대조(Ollama :latest · 경로형 id)  — [True, False, True, None]
+[PASS] model 을 비운 설정의 화면 모델 이름 = 실행기 id 의 파일 이름(경로 없음)  — ['gemma-4-12B-it-Q4_K_M', 'q', 'gemma3:12b', '']
+[PASS] duckdb 판 범위 판정(1.5 이상 2 미만)  — [True, False, False, True, True]
+
+■ D. 웹 화면 — 모의 LLM 으로 기동해 /api 를 끝까지
+[PASS] 웹 서버 기동(config 로 LLM 연결 → DB·색인 적재 → 화면 응답)  — 0.5초
+[PASS] /api/info — 이 프로그램 · 색인 · LLM 준비 · 예시 질문  — docs 1046(참고 305) · ready True · 예시 16 · mock-model
+[PASS] 접두부 예열(기동 직후 조건 F 앞부분 1회, max_tokens 1)
+[PASS] 상태 확인 GET {base_url}/models
+[PASS] 화면(/) 응답
+[PASS] /api/settings — 설정값(실행기 · 주소 · 요청 필드) · 사전 · 메모리  — 요청 필드 ['max_tokens', 'model', 'seed', 'temperature'] · 메모리 12.7
+[PASS] /api/dict — 사전 원문 · 용어 대응표
+[PASS] 집계형: 라우터 AGG → SQL 생성 → DuckDB 실행 → 표·답 문장  — [['1', '122'], ['2', '125']] · The result is shown in the table below. 2 rows in total.
+[PASS] 집계형: 보낸 글 = 조건 F 전문(질문만 바뀜) · 요청 필드(ollama)  — 13,978자
+[PASS] 기권: NO_RELIABLE_VALUE → SQL 을 실행하지 않고 사유 표시  — Recorded, but not reliable.
+[PASS] 사고형 출력(<think>…)을 걷어 내고 SQL 실행  — [['6']]
+[PASS] 절차형(영어): 번역 없이 BM25 → 기록 4건 → JSON → 인용 검증  — 검증 1/2 · 1위 기록 L.O purifier overhaul and assembly
+[PASS] 인용 검증: 원문에 있는 인용만 verified, 지어낸 인용은 unverified  — 3) On reassembly, the large lock nut was tightened to 280 N.m using a 
+[PASS] 출처 조회(정비 문서 기록): 선박 · 기기 · 호기 · 장비 · 문서 · 정비항목(master·pms) — 원판 그대로  — V03 · EN018 · E0457
+[PASS] 절차형(참고 기록): P063 영어 질문 → qa_proc_context 기록 검색 → 인용 검증  — 검증 1/2 · 1위 P063-1 Windlass/Winch Remote hyd. line inspecti
+[PASS] 출처 조회(참고 기록): qa_proc_context 의 제목 · 기기 · 호기 · 날짜 · 문항ID(본문이 같은 기록 모두)  — MOORING WINCH 1 · 2025-06-17 · 문항 ['P063-1', 'P063-2', 'P063-3', 'P063-4']
+[PASS] 출처 표(참고 기록): 문항별 묶음(P063 · records 1–4) · 같은 본문 기록의 호기를 모두(1–4)  — 묶음 P063 · records 1–4 · MOORING WINCH 1–4
+[PASS] 화면: 참고 기록 전용 머리행(Fixed context of) · 정비 문서 기록의 합성 서술 표시(synthetic narrative)
+[PASS] 절차형(한국어): 용어 대응 → 번역 → 검색어 보강 → 인용 검증  — 1위 기록 D/G turbocharger water washing · 검색어 What engine load and turbine inlet temperature should be mai…
+[PASS] 후속 질문: 직전 대화로 다시 쓴 뒤 같은 경로(재작성은 답변 프롬프트에 섞지 않음)  — → 발전기 정비를 호기별로 세어줘 · [['1', '63'], ['2', '62'], ['3', '69']]
+[PASS] 한국어 병기(bi): 질문 번역 + 한국어 답 문장(모델 없이 조립)  — 주기관 정비 라인을 호기별로 세어 주세요 / Count the main engine maintenance lines by unit number은 아래 표와 같습니다. 모두 2개 항목입니다.
+[PASS] LLM 오류(404 모델 없음) → 원인과 조치를 알림  — Model call failed: __ERROR__ 모델 "mock-model" 을(를) 찾지 못했습니다(HTTP 404). ollama list 에 보이는 이름
+[PASS] 절차형 출력 형식 오류 → 한 번 다시 묻고 원문 표시(badfmt)  — badfmt
+[PASS] 중단: /api/cancel 이 LLM 연결을 닫고 곧바로 끝냄  — 1.5초
+[PASS] /api/progress
+[PASS] 번호표: 임시 서버는 --pid-file(임시 폴더)에 쓰고 logs/web.pid 는 건드리지 않음  — 임시 번호표 35174 · logs/web.pid 그대로
+
+■ E. 터미널판 · LLM 점검 도구(모의 LLM)
+[PASS] 터미널판 집계형(maintqa_cli.py -q)  — m  [90m(2행, 0.0초)[0m   1 | 122   2 | 125  [90m종료했습니다.[0m
+[PASS] 터미널판 절차형(평가기와 같은 한국어 단계 템플릿 · 인용 검증)  — 인용 검증 1/2
+[PASS] check_llm.py --quick(START.bat 이 쓰는 점검)  — LLM 응답 확인 — Ollama · http://127.0.0.1:38283/v1 · 모델 mock-model · 모델 1개
+[PASS] check_llm.py 전체(대화 · 문맥 길이 · SQL · 기권 · 인용 JSON)  — 판정(0초): 이 설정으로 웹 화면과 평가를 진행해도 됩니다.
+[PASS] 응답 없는 주소 → 코드 11 과 켜는 방법 안내  — 코드 11
+
+■ F. 평가기(eval/) — 1,000건 DB 기준 채점기
+[PASS] eval/run_eval.py --self-test(집계형·절차형 채점기 · 호출 경로 · 배포 점검)  — 결과: 55/55 PASS
+[PASS] eval_from_config.py → run_eval.py 집계형(config 의 주소·모델·프리셋으로)  — 엄격 4/4 · 요청 필드 ['max_tokens', 'model', 'seed', 'temperature', 'top_k']
+[PASS] eval_from_config.py → run_eval.py 절차형(고정 문맥 · 인용 대조)  — 단계 2 · 인용정확 1
+[PASS] fill_record_form.py → 기록양식_200문항.xlsx ⑥ 기록양식에 결과 채움  — 기록양식에 5행을 채우고 0행을 더했다 → ../../../../tmp/sma_selftest_9vn937ke/form.xlsx
+
+■ G. 배포 점검
+[PASS] 실제 DB·17만 행 키트 DB·실제/키트 색인·키트 정답 엑셀·열쇠·모델 파일 없음  — 0개
+[PASS] __pycache__ · .pyc 없음  — 0개
+[PASS] 텍스트 파일에 사용자 폴더 절대경로 없음  — 0개
+
+결과: 76/76 PASS · 13초
+selftest PASS — 패키지가 제대로 놓였습니다. 다음은 tools/check_llm.py 로 실제 LLM 을 점검하십시오.

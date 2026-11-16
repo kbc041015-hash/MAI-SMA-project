@@ -1,0 +1,26 @@
+  평가기 실행: python eval/run_eval.py --preset openai --base-url http://127.0.0.1:11435/v1 --model mai-sma-qwen3-14b:latest --seed 42 --extra '{"reasoning_effort": "none"}' --timeout 1200 --task proc --ids P001-P005 --tag ollama_colab_e78b2e24_proc --out-dir /content/mai_sma_ollama/results --resume
+호출 계획: 1개 조합 · 5건 · 프롬프트 합계 24,775자
+  주소 http://127.0.0.1:11435/v1/chat/completions · 프리셋 openai · 요청 설정 {"model": "mai-sma-qwen3-14b:latest", "temperature": 0.0, "seed": 42, "max_tokens": 2200, "reasoning_effort": "none"}
+
+── ollama_colab_e78b2e24_proc: 5건
+    1/5 [절차  ] 단계  4 · 인용정확  4 · steps     13.9s  Our main engine turbocharger
+    2/5 [판정기준] 단계  0 · 인용정확  0 · abstain    4.3s  On the main engine, how much
+    3/5 [이상소견] 단계  8 · 인용정확  8 · steps     22.5s  The main engine fuel injecto
+    4/5 [부품  ] 단계  3 · 인용정확  3 · steps     13.5s  The main engine turbocharger
+    5/5 [절차  ] 단계  2 · 인용정확  2 · steps      9.7s  When checking the crosshead 
+
+=== ollama_colab_e78b2e24_proc · 질문 en · 입력해시 d9ce1ba97f6b4578 · 문항 5 · 단계 17 ===
+  JSON 파싱(원 정의)      4/5
+  인용 충실도(exact)      17/17 (100.0%)
+  기록번호 오기           0/17 (0.0%)
+  인용 환각               0/17 (0.0%)
+  (참고) 시연 화면 기준 통과(anywhere) 17/17 (100.0%) — 화면은 기록번호를 고쳐 통과시킨다
+  측정값 근거율           5/5
+  기록부족 명시(원 정의)  1/5 · 실제 사유 있는 것 1/5
+  답 못 만듦(단계 0)      1/5
+  ── proc_metrics 재정의 ── JSON 유효 5/5 · 단계 산출 4/5 · 의도적 기권 1 · 생성 실패 0
+  유형별(단계산출/기권/생성실패/문항 · 인용정확/단계)  절차 2/0/0/2 · 6/6 · 판정기준 0/1/0/1 · 0/0 · 이상소견 1/0/0/1 · 8/8 · 부품 1/0/0/1 · 3/3
+  API 오류 0건
+  응답 시간 평균 12.78초 · 중앙값 13.51초 · 최대 22.46초 · 합계 1.1분
+  토큰 입력 6,948 · 출력 1,033 (usage 가 온 5건 합계)
+  저장: /content/mai_sma_ollama/results/ollama_colab_e78b2e24_proc.csv · .jsonl · _summary.txt · _summary.json · _steps.csv · proc100_ollama_colab_e78b2e24_proc.json

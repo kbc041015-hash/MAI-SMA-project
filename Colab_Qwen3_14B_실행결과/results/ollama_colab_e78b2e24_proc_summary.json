@@ -1,0 +1,77 @@
+{
+ "task": "proc",
+ "items": 5,
+ "steps": 17,
+ "exact": 17,
+ "misrec": 0,
+ "halluc": 0,
+ "num_ok": 5,
+ "num_all": 5,
+ "legacy_parsed": 4,
+ "json_valid": 5,
+ "step_yield": 4,
+ "abstain": 1,
+ "gen_fail": 0,
+ "legacy_refuse": 1,
+ "lack_raw": 1,
+ "lack": 1,
+ "api_error": 0,
+ "exact_pct": 100.0,
+ "misrec_pct": 0.0,
+ "halluc_pct": 0.0,
+ "anywhere": 17,
+ "anywhere_pct": 100.0,
+ "by_kind": {
+  "절차": {
+   "total": 2,
+   "steps": 6,
+   "exact": 6,
+   "step_yield": 2,
+   "abstain": 0,
+   "gen_fail": 0
+  },
+  "판정기준": {
+   "total": 1,
+   "steps": 0,
+   "exact": 0,
+   "step_yield": 0,
+   "abstain": 1,
+   "gen_fail": 0
+  },
+  "이상소견": {
+   "total": 1,
+   "steps": 8,
+   "exact": 8,
+   "step_yield": 1,
+   "abstain": 0,
+   "gen_fail": 0
+  },
+  "부품": {
+   "total": 1,
+   "steps": 3,
+   "exact": 3,
+   "step_yield": 1,
+   "abstain": 0,
+   "gen_fail": 0
+  }
+ },
+ "timing": {
+  "n": 5,
+  "mean": 12.78,
+  "median": 13.51,
+  "max": 22.46,
+  "total_min": 1.1
+ },
+ "tokens": {
+  "prompt": 6948,
+  "completion": 1033,
+  "n": 5
+ },
+ "input_hash": "d9ce1ba97f6b4578",
+ "combo": {
+  "task": "proc",
+  "cond": "PROC",
+  "phrasing": "en",
+  "variant": "kit"
+ }
+}

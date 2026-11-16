@@ -1,0 +1,24 @@
+  평가기 실행: python eval/run_eval.py --preset openai --base-url http://127.0.0.1:11435/v1 --model mai-sma-qwen3-14b:latest --seed 42 --extra '{"reasoning_effort": "none"}' --timeout 1200 --task agg --ids Q001-Q010 --tag ollama_colab_e78b2e24_agg --out-dir /content/mai_sma_ollama/results --resume
+호출 계획: 1개 조합 · 10건 · 프롬프트 합계 139,799자
+  주소 http://127.0.0.1:11435/v1/chat/completions · 프리셋 openai · 요청 설정 {"model": "mai-sma-qwen3-14b:latest", "temperature": 0.0, "seed": 42, "max_tokens": 400, "reasoning_effort": "none"}
+
+── ollama_colab_e78b2e24_agg: 10건
+  OO   1 [easy  ]   1.0s  우리 배 몇 척이야?                      → (6,)                       (정답 (6,))
+  XX   2 [easy  ]   0.8s  배 목록이랑 영문 약칭 좀 보여줘               → ('VESSEL-A', 'VESSEL-A')   (정답 ('V01', 'VESSEL-A'))
+  OO   3 [easy  ]   1.1s  정비 기록이 전부 몇 건이야?                 → (1000,)                    (정답 (1000,))
+  XX   4 [easy  ]   0.9s  정비 작업 항목이 전부 몇 개야?               → (737,)                     (정답 (2296,))
+  XX   5 [easy  ]   1.4s  부품 쓴 기록이 몇 건이나 돼?                → (68,)                      (정답 (174,))
+  OO   6 [easy  ]   0.6s  첨부한 파일이 몇 개나 돼?                  → (286,)                     (정답 (286,))
+  OO   7 [easy  ]   0.6s  결재 단계 기록이 전부 몇 건이야?              → (2979,)                    (정답 (2979,))
+  OO   8 [easy  ]   1.4s  기관부에서 올린 정비 기록이 몇 건이야?           → (550,)                     (정답 (550,))
+  OO   9 [easy  ]   1.4s  갑판부에서 올린 정비 기록이 몇 건이야?           → (448,)                     (정답 (448,))
+  OO  10 [easy  ]   1.0s  중요 정비로 표시된 작업이 몇 건이야?            → (712,)                     (정답 (712,))
+
+=== ollama_colab_e78b2e24_agg · 조건 F · 문형 NL · 판 kit · 문항 10 ===
+  [엄격] 전체 7/10 (70.0%)  쉬움 7/10  중간 0/0  어려움 0/0
+  [방언정규화] 전체 7/10 (70.0%)  쉬움 7/10  중간 0/0  어려움 0/0
+  기권 지시이행 0/0 · 과잉 기권(정답이 SQL 인데 기권) 0건
+  실행 오류(E) 0건 · API 오류 0건 · 방언교정으로만 맞은 문항 0건
+  응답 시간 평균 1.03초 · 중앙값 1.0초 · 최대 1.43초 · 합계 0.2분
+  토큰 입력 78,894 · 출력 178 (usage 가 온 10건 합계)
+  저장: /content/mai_sma_ollama/results/ollama_colab_e78b2e24_agg.csv · .jsonl · _summary.txt · _summary.json · res100_ollama_colab_e78b2e24_agg.json

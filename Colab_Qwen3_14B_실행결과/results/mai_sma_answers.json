@@ -1,0 +1,55 @@
+[
+  {
+    "question": "주기관 정비를 호기별로 세어줘",
+    "response": {
+      "kind": "table",
+      "sql": "SELECT MACH_NO, count(*) AS n FROM pms WHERE MACH_DESC='MAIN ENGINE(DIESEL)' GROUP BY MACH_NO ORDER BY n DESC;",
+      "cols": 123,
+      "sec": 15.6,
+      "answer": "The result is shown in the table below. 2 rows in total.",
+      "answer_ko": null,
+      "hdr": [
+        "MACH_NO",
+        "n"
+      ],
+      "src": [
+        {
+          "table": "pms",
+          "cols": [
+            "MACH_NO",
+            "MACH_DESC"
+          ]
+        }
+      ],
+      "t_gen": 15.6,
+      "t_exec": 0.0,
+      "rows": [
+        [
+          "2",
+          "125"
+        ],
+        [
+          "1",
+          "122"
+        ]
+      ],
+      "total": 2,
+      "route": "AGG",
+      "route_sure": true,
+      "lang": "ko",
+      "bi": false,
+      "summary": "The result is shown in the table below. 2 rows in total.",
+      "stages": [
+        {
+          "label": "Generating SQL",
+          "sec": 15.6
+        },
+        {
+          "label": "Running SQL",
+          "sec": 0.0
+        }
+      ]
+    },
+    "wall_seconds": 15.646773757999654
+  }
+]
